@@ -8,7 +8,7 @@ The application starts the official `@deepseek-ai/dsh` Web profile on a random l
 
 Download the latest macOS Apple Silicon build from [GitHub Releases](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest).
 
-The release is currently unsigned. On first launch, macOS may require you to right-click the app, choose **Open**, and confirm.
+The release is ad-hoc signed for bundle integrity but is not Apple-notarized. On first launch, macOS may require you to right-click the app, choose **Open**, and confirm.
 
 ## Development
 

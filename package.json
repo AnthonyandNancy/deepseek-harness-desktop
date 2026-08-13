@@ -1,6 +1,6 @@
 {
   "name": "deepseek-harness-desktop",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An unofficial desktop wrapper for DeepSeek Harness.",
   "type": "module",
   "main": "src/main.js",
@@ -29,6 +29,7 @@
     "electron-builder": "26.0.12"
   },
   "build": {
+    "afterSign": "scripts/after-pack.cjs",
     "appId": "io.github.steven-kid.deepseek-harness-desktop",
     "productName": "DeepSeek Harness",
     "artifactName": "DeepSeek-Harness-Desktop-${version}-${arch}.${ext}",
