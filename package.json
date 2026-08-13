@@ -1,10 +1,13 @@
 {
   "name": "deepseek-harness-desktop",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "An unofficial desktop wrapper for DeepSeek Harness.",
   "type": "module",
   "main": "src/main.js",
-  "author": "Steven",
+  "author": {
+    "name": "Steven",
+    "email": "96154058+steven-kid@users.noreply.github.com"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -20,8 +23,11 @@
     "smoke:packaged": "node scripts/smoke-packaged.mjs",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "dist:mac": "electron-builder --mac dmg zip --arm64 --publish never",
-    "dist:win": "electron-builder --win nsis zip --x64 --publish never"
+    "dist:mac": "npm run dist:mac:arm64",
+    "dist:mac:arm64": "electron-builder --mac dmg zip --arm64 --publish never",
+    "dist:mac:x64": "electron-builder --mac dmg zip --x64 --publish never",
+    "dist:win": "electron-builder --win nsis zip --x64 --publish never",
+    "dist:linux": "electron-builder --linux AppImage deb --x64 --publish never"
   },
   "dependencies": {
     "@deepseek-ai/cordis-plugin-group": "1.0.1",
@@ -112,6 +118,26 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "runAfterFinish": false
+    },
+    "linux": {
+      "icon": "assets/icon.png",
+      "category": "Development",
+      "executableName": "deepseek-harness",
+      "artifactName": "DeepSeek-Harness-Desktop-${version}-linux-${arch}.${ext}",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "dmg": {
       "title": "DeepSeek Harness Desktop ${version}",

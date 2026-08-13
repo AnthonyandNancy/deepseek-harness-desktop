@@ -7,10 +7,13 @@
 
 ## 下载
 
-目前提供 macOS Apple Silicon 和 Windows x64 安装包：
+目前提供 macOS Apple Silicon、macOS Intel、Windows x64 和 Linux x64 安装包：
 
-- [下载 Mac 安装包（Apple Silicon DMG）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.1-arm64.dmg)
-- [下载 Windows 安装包（x64 EXE）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.1-windows-x64.exe)
+- [下载 Mac 安装包（Apple Silicon DMG）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-arm64.dmg)
+- [下载 Mac 安装包（Intel DMG）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-x64.dmg)
+- [下载 Windows 安装包（x64 EXE）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-windows-x64.exe)
+- [下载 Linux AppImage（x64）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-x64.AppImage)
+- [下载 Linux deb（x64）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-x64.deb)
 - [查看所有版本](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest)
 
 ## macOS 安装
@@ -34,6 +37,11 @@
 Windows 安装包目前未进行商业代码签名，因此首次运行可能出现 SmartScreen 提示。
 
 Windows 桌面版使用应用内目录浏览器选择工作区，避免原生 Win32 文件夹选择器在部分打包环境中异常退出。Windows 窗口不会显示默认的 File、Edit、View 和 Window 菜单栏。
+
+## Linux 安装
+
+- AppImage：添加执行权限后直接运行，例如 `chmod +x DeepSeek-Harness-Desktop-*.AppImage`。
+- Debian / Ubuntu：下载 deb 后使用系统软件安装器，或运行 `sudo apt install ./DeepSeek-Harness-Desktop-*.deb`。
 
 ## 工作原理
 
@@ -68,8 +76,11 @@ The application starts the official `@deepseek-ai/dsh` Web profile on a random l
 
 ### Download
 
-- [Download for Mac (Apple Silicon DMG)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.1-arm64.dmg)
-- [Download for Windows (x64 EXE)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.1-windows-x64.exe)
+- [Download for Mac (Apple Silicon DMG)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-arm64.dmg)
+- [Download for Mac (Intel DMG)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-x64.dmg)
+- [Download for Windows (x64 EXE)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-windows-x64.exe)
+- [Download for Linux (x64 AppImage)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-x64.AppImage)
+- [Download for Linux (x64 deb)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-x64.deb)
 - [View all releases](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest)
 
 ### Install on macOS
@@ -93,6 +104,11 @@ You normally only need to complete the Privacy & Security confirmation once.
 The Windows installer is currently not commercially code-signed, so SmartScreen may appear on first launch.
 
 The Windows desktop app uses the in-app directory browser for workspace selection, avoiding native Win32 folder-dialog worker failures seen in some packaged environments. The default File, Edit, View, and Window menu bar is hidden on Windows.
+
+### Install on Linux
+
+- AppImage: make it executable and run it, for example `chmod +x DeepSeek-Harness-Desktop-*.AppImage`.
+- Debian / Ubuntu: open the deb with the system software installer, or run `sudo apt install ./DeepSeek-Harness-Desktop-*.deb`.
 
 ### How it works
 

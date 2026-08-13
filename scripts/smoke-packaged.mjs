@@ -7,12 +7,14 @@ import { startDshService } from '../src/dsh-service.js'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const defaultAppPath = process.platform === 'win32'
   ? path.join(root, 'dist', 'win-unpacked', 'DeepSeek Harness.exe')
-  : path.join(root, 'dist', 'mac-arm64', 'DeepSeek Harness.app')
+  : process.platform === 'linux'
+    ? path.join(root, 'dist', 'linux-unpacked', 'deepseek-harness')
+    : path.join(root, 'dist', process.arch === 'x64' ? 'mac' : 'mac-arm64', 'DeepSeek Harness.app')
 const appPath = process.env.PACKAGED_APP_PATH ?? defaultAppPath
-const electronExecutable = process.platform === 'win32'
+const electronExecutable = process.platform === 'win32' || process.platform === 'linux'
   ? appPath
   : path.join(appPath, 'Contents', 'MacOS', 'DeepSeek Harness')
-const packagedResourcesRoot = process.platform === 'win32'
+const packagedResourcesRoot = process.platform === 'win32' || process.platform === 'linux'
   ? path.join(path.dirname(appPath), 'resources', 'app')
   : path.join(appPath, 'Contents', 'Resources', 'app')
 const temporaryRoot = process.env.PACKAGED_APP_PATH ? undefined : mkdtempSync(path.join(os.tmpdir(), 'dsh-packaged-smoke-'))
