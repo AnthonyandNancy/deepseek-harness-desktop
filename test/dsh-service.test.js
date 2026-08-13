@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import path from 'node:path'
 import { buildDshArgs, extractReadyUrl, resolveDshEntry, unpackedPath } from '../src/dsh-service.js'
 
 test('extractReadyUrl reads the canonical loopback readiness URL', () => {
@@ -14,7 +15,10 @@ test('extractReadyUrl ignores non-loopback output', () => {
 })
 
 test('resolveDshEntry finds the pinned CLI package', () => {
-  assert.match(resolveDshEntry(), /@deepseek-ai\/dsh\/lib\/bin\.js$/)
+  assert.equal(
+    resolveDshEntry().endsWith(path.join('@deepseek-ai', 'dsh', 'lib', 'bin.js')),
+    true,
+  )
 })
 
 test('unpackedPath maps packaged dependencies to Electron unpacked resources', () => {
