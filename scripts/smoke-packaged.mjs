@@ -1,0 +1,44 @@
+import { execFileSync } from 'node:child_process'
+import { mkdtempSync, rmSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { startDshService } from '../src/dsh-service.js'
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const appPath = process.env.PACKAGED_APP_PATH ?? path.join(root, 'dist', 'mac-arm64', 'DeepSeek Harness.app')
+const appRoot = path.join(appPath, 'Contents')
+const temporaryRoot = process.env.PACKAGED_APP_PATH ? undefined : mkdtempSync(path.join(os.tmpdir(), 'dsh-packaged-smoke-'))
+const resourcesRoot = temporaryRoot === undefined
+  ? path.join(appRoot, 'Resources', 'app')
+  : path.join(temporaryRoot, 'app')
+
+if (temporaryRoot !== undefined) {
+  execFileSync('cp', ['-cR', path.join(appRoot, 'Resources', 'app'), resourcesRoot])
+}
+
+const service = startDshService({
+  electronExecutable: path.join(appRoot, 'MacOS', 'DeepSeek Harness'),
+  entry: path.join(resourcesRoot, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js'),
+  environment: {
+    ...process.env,
+    NODE_OPTIONS: '',
+    NODE_PATH: '',
+  },
+})
+
+try {
+  const url = await service.ready
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`Packaged DeepSeek Harness returned HTTP ${response.status}`)
+  }
+  const html = await response.text()
+  if (!html.includes('__DSH_BOOT__')) {
+    throw new Error('Packaged DeepSeek Harness did not return its Web UI')
+  }
+  console.log(`packaged smoke: ${response.status} ${url}`)
+} finally {
+  service.stop()
+  if (temporaryRoot !== undefined) rmSync(temporaryRoot, { recursive: true, force: true })
+}
