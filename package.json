@@ -19,7 +19,7 @@
     "test": "node --test",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "dist:mac": "electron-builder --mac dmg zip --arm64"
+    "dist:mac": "electron-builder --mac dmg zip --arm64 --publish never"
   },
   "dependencies": {
     "@deepseek-ai/dsh": "0.1.0-rc.6"
