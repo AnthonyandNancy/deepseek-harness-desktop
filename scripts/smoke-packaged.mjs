@@ -1,24 +1,31 @@
-import { execFileSync } from 'node:child_process'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { cpSync, mkdtempSync, rmSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { startDshService } from '../src/dsh-service.js'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const appPath = process.env.PACKAGED_APP_PATH ?? path.join(root, 'dist', 'mac-arm64', 'DeepSeek Harness.app')
-const appRoot = path.join(appPath, 'Contents')
+const defaultAppPath = process.platform === 'win32'
+  ? path.join(root, 'dist', 'win-unpacked', 'DeepSeek Harness.exe')
+  : path.join(root, 'dist', 'mac-arm64', 'DeepSeek Harness.app')
+const appPath = process.env.PACKAGED_APP_PATH ?? defaultAppPath
+const electronExecutable = process.platform === 'win32'
+  ? appPath
+  : path.join(appPath, 'Contents', 'MacOS', 'DeepSeek Harness')
+const packagedResourcesRoot = process.platform === 'win32'
+  ? path.join(path.dirname(appPath), 'resources', 'app')
+  : path.join(appPath, 'Contents', 'Resources', 'app')
 const temporaryRoot = process.env.PACKAGED_APP_PATH ? undefined : mkdtempSync(path.join(os.tmpdir(), 'dsh-packaged-smoke-'))
 const resourcesRoot = temporaryRoot === undefined
-  ? path.join(appRoot, 'Resources', 'app')
+  ? packagedResourcesRoot
   : path.join(temporaryRoot, 'app')
 
 if (temporaryRoot !== undefined) {
-  execFileSync('cp', ['-cR', path.join(appRoot, 'Resources', 'app'), resourcesRoot])
+  cpSync(packagedResourcesRoot, resourcesRoot, { recursive: true })
 }
 
 const service = startDshService({
-  electronExecutable: path.join(appRoot, 'MacOS', 'DeepSeek Harness'),
+  electronExecutable,
   entry: path.join(resourcesRoot, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js'),
   environment: {
     ...process.env,

@@ -1,6 +1,6 @@
 {
   "name": "deepseek-harness-desktop",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "An unofficial desktop wrapper for DeepSeek Harness.",
   "type": "module",
   "main": "src/main.js",
@@ -20,7 +20,8 @@
     "smoke:packaged": "node scripts/smoke-packaged.mjs",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "dist:mac": "electron-builder --mac dmg zip --arm64 --publish never"
+    "dist:mac": "electron-builder --mac dmg zip --arm64 --publish never",
+    "dist:win": "electron-builder --win nsis zip --x64 --publish never"
   },
   "dependencies": {
     "@deepseek-ai/cordis-plugin-group": "1.0.1",
@@ -85,6 +86,31 @@
           ]
         }
       ]
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "artifactName": "DeepSeek-Harness-Desktop-${version}-windows-${arch}.${ext}",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": false
     },
     "dmg": {
       "title": "DeepSeek Harness Desktop ${version}",

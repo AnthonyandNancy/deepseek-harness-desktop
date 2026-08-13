@@ -6,9 +6,10 @@
 
 ## 下载
 
-目前提供 macOS Apple Silicon 安装包：
+目前提供 macOS Apple Silicon 和 Windows x64 安装包：
 
-- [下载 Mac 安装包（Apple Silicon DMG）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.1.2-arm64.dmg)
+- [下载 Mac 安装包（Apple Silicon DMG）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.0-arm64.dmg)
+- [下载 Windows 安装包（x64 EXE）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.0-windows-x64.exe)
 - [查看所有版本](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest)
 
 ## macOS 安装
@@ -22,6 +23,14 @@
 5. 再次点击“打开”进行确认。
 
 “隐私与安全性”确认通常只需完成一次。
+
+## Windows 安装
+
+1. 下载并运行 Windows x64 安装程序。
+2. 如果 Microsoft Defender SmartScreen 阻止启动，请点击“更多信息”。
+3. 点击“仍要运行”，然后按安装向导完成安装。
+
+Windows 安装包目前未进行商业代码签名，因此首次运行可能出现 SmartScreen 提示。
 
 ## 工作原理
 
@@ -56,7 +65,8 @@ The application starts the official `@deepseek-ai/dsh` Web profile on a random l
 
 ### Download
 
-- [Download for Mac (Apple Silicon DMG)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.1.2-arm64.dmg)
+- [Download for Mac (Apple Silicon DMG)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.0-arm64.dmg)
+- [Download for Windows (x64 EXE)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.0-windows-x64.exe)
 - [View all releases](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest)
 
 ### Install on macOS
@@ -70,6 +80,14 @@ The release is integrity-signed but is not Apple-notarized. Follow these steps t
 5. Confirm by clicking **Open** once more.
 
 You normally only need to complete the Privacy & Security confirmation once.
+
+### Install on Windows
+
+1. Download and run the Windows x64 installer.
+2. If Microsoft Defender SmartScreen blocks it, click **More info**.
+3. Click **Run anyway**, then complete the setup wizard.
+
+The Windows installer is currently not commercially code-signed, so SmartScreen may appear on first launch.
 
 ### How it works
 
