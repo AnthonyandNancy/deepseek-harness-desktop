@@ -1,0 +1,89 @@
+{
+  "name": "deepseek-harness-desktop",
+  "version": "0.1.0",
+  "description": "An unofficial desktop wrapper for DeepSeek Harness.",
+  "type": "module",
+  "main": "src/main.js",
+  "author": "Steven",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steven-kid/deepseek-harness-desktop.git"
+  },
+  "homepage": "https://github.com/steven-kid/deepseek-harness-desktop#readme",
+  "bugs": {
+    "url": "https://github.com/steven-kid/deepseek-harness-desktop/issues"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac dmg zip --arm64"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh": "0.1.0-rc.6"
+  },
+  "devDependencies": {
+    "electron": "43.4.0",
+    "electron-builder": "26.0.12"
+  },
+  "build": {
+    "appId": "io.github.steven-kid.deepseek-harness-desktop",
+    "productName": "DeepSeek Harness",
+    "artifactName": "DeepSeek-Harness-Desktop-${version}-${arch}.${ext}",
+    "asar": false,
+    "files": [
+      "src/**/*",
+      "package.json",
+      "LICENSE",
+      "third-party-licenses/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "assets/icon.icns",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "identity": null,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "dmg": {
+      "title": "DeepSeek Harness Desktop ${version}",
+      "backgroundColor": "#f5f7fb",
+      "window": {
+        "width": 540,
+        "height": 380
+      },
+      "contents": [
+        {
+          "x": 140,
+          "y": 185
+        },
+        {
+          "x": 400,
+          "y": 185,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  }
+}
