@@ -44,6 +44,9 @@ try {
   if (!html.includes('__DSH_BOOT__')) {
     throw new Error('Packaged DeepSeek Harness did not return its Web UI')
   }
+  if (process.platform === 'win32' && !html.includes('@deepseek-ai/dsh-client-ui-directory-picker-browse')) {
+    throw new Error('Packaged Windows app did not mount the browse directory picker')
+  }
   console.log(`packaged smoke: ${response.status} ${url}`)
 } finally {
   service.stop()

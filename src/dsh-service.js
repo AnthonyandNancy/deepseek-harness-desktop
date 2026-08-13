@@ -15,21 +15,39 @@ export function extractReadyUrl(output) {
   return READY_PATTERN.exec(output)?.[1]
 }
 
-export function buildDshArgs(entry) {
-  return ['--expose-internals', entry, '--profile', 'web', '--host', '127.0.0.1', '--port', '0']
+export function resolveWindowsPickerPatch() {
+  return fileURLToPath(new URL('../config/windows-directory-picker.patch.yml', import.meta.url))
+}
+
+export function buildDshArgs(entry, {
+  platform = process.platform,
+  windowsPickerPatch = resolveWindowsPickerPatch(),
+} = {}) {
+  return [
+    '--expose-internals',
+    entry,
+    '--profile',
+    'web',
+    ...(platform === 'win32' ? ['--patch', windowsPickerPatch] : []),
+    '--host',
+    '127.0.0.1',
+    '--port',
+    '0',
+  ]
 }
 
 export function startDshService({
   electronExecutable,
   entry = resolveDshEntry(),
   environment = process.env,
+  platform = process.platform,
   timeoutMs = 60_000,
 } = {}) {
   if (!electronExecutable) {
     throw new Error('electronExecutable is required')
   }
 
-  const child = spawn(electronExecutable, buildDshArgs(entry), {
+  const child = spawn(electronExecutable, buildDshArgs(entry, { platform }), {
     env: {
       ...environment,
       ELECTRON_RUN_AS_NODE: '1',

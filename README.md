@@ -9,8 +9,8 @@
 
 目前提供 macOS Apple Silicon 和 Windows x64 安装包：
 
-- [下载 Mac 安装包（Apple Silicon DMG）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.0-arm64.dmg)
-- [下载 Windows 安装包（x64 EXE）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.0-windows-x64.exe)
+- [下载 Mac 安装包（Apple Silicon DMG）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.1-arm64.dmg)
+- [下载 Windows 安装包（x64 EXE）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.1-windows-x64.exe)
 - [查看所有版本](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest)
 
 ## macOS 安装
@@ -32,6 +32,8 @@
 3. 点击“仍要运行”，然后按安装向导完成安装。
 
 Windows 安装包目前未进行商业代码签名，因此首次运行可能出现 SmartScreen 提示。
+
+Windows 桌面版使用应用内目录浏览器选择工作区，避免原生 Win32 文件夹选择器在部分打包环境中异常退出。Windows 窗口不会显示默认的 File、Edit、View 和 Window 菜单栏。
 
 ## 工作原理
 
@@ -66,8 +68,8 @@ The application starts the official `@deepseek-ai/dsh` Web profile on a random l
 
 ### Download
 
-- [Download for Mac (Apple Silicon DMG)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.0-arm64.dmg)
-- [Download for Windows (x64 EXE)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.0-windows-x64.exe)
+- [Download for Mac (Apple Silicon DMG)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.1-arm64.dmg)
+- [Download for Windows (x64 EXE)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.2.1-windows-x64.exe)
 - [View all releases](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest)
 
 ### Install on macOS
@@ -89,6 +91,8 @@ You normally only need to complete the Privacy & Security confirmation once.
 3. Click **Run anyway**, then complete the setup wizard.
 
 The Windows installer is currently not commercially code-signed, so SmartScreen may appear on first launch.
+
+The Windows desktop app uses the in-app directory browser for workspace selection, avoiding native Win32 folder-dialog worker failures seen in some packaged environments. The default File, Edit, View, and Window menu bar is hidden on Windows.
 
 ### How it works
 

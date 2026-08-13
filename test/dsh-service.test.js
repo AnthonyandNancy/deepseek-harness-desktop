@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import path from 'node:path'
-import { buildDshArgs, extractReadyUrl, resolveDshEntry, unpackedPath } from '../src/dsh-service.js'
+import {
+  buildDshArgs,
+  extractReadyUrl,
+  resolveDshEntry,
+  resolveWindowsPickerPatch,
+  unpackedPath,
+} from '../src/dsh-service.js'
 
 test('extractReadyUrl reads the canonical loopback readiness URL', () => {
   assert.equal(
@@ -30,7 +36,7 @@ test('unpackedPath maps packaged dependencies to Electron unpacked resources', (
 })
 
 test('buildDshArgs includes the runtime flag required by upstream HMR', () => {
-  assert.deepEqual(buildDshArgs('/app/dsh.js'), [
+  assert.deepEqual(buildDshArgs('/app/dsh.js', { platform: 'darwin' }), [
     '--expose-internals',
     '/app/dsh.js',
     '--profile',
@@ -40,4 +46,23 @@ test('buildDshArgs includes the runtime flag required by upstream HMR', () => {
     '--port',
     '0',
   ])
+})
+
+test('buildDshArgs pins the browse directory picker on Windows', () => {
+  assert.deepEqual(buildDshArgs('C:\\app\\dsh.js', {
+    platform: 'win32',
+    windowsPickerPatch: 'C:\\app\\windows-picker.yml',
+  }), [
+    '--expose-internals',
+    'C:\\app\\dsh.js',
+    '--profile',
+    'web',
+    '--patch',
+    'C:\\app\\windows-picker.yml',
+    '--host',
+    '127.0.0.1',
+    '--port',
+    '0',
+  ])
+  assert.equal(resolveWindowsPickerPatch().endsWith('windows-directory-picker.patch.yml'), true)
 })
