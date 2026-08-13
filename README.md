@@ -1,4 +1,5 @@
 # DeepSeek Harness Desktop
+<img width="2880" height="1876" alt="image" src="https://github.com/user-attachments/assets/8ef533e0-dd4f-439a-a24a-dbb22bb45b0f" />
 
 一个非官方的 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 轻量桌面封装。
 
