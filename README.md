@@ -12,8 +12,8 @@
 - [下载 Mac 安装包（Apple Silicon DMG）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-arm64.dmg)
 - [下载 Mac 安装包（Intel DMG）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-x64.dmg)
 - [下载 Windows 安装包（x64 EXE）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-windows-x64.exe)
-- [下载 Linux AppImage（x64）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-x64.AppImage)
-- [下载 Linux deb（x64）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-x64.deb)
+- [下载 Linux AppImage（x64）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-x86_64.AppImage)
+- [下载 Linux deb（x64）](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-amd64.deb)
 - [查看所有版本](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest)
 
 ## macOS 安装
@@ -79,8 +79,8 @@ The application starts the official `@deepseek-ai/dsh` Web profile on a random l
 - [Download for Mac (Apple Silicon DMG)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-arm64.dmg)
 - [Download for Mac (Intel DMG)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-x64.dmg)
 - [Download for Windows (x64 EXE)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-windows-x64.exe)
-- [Download for Linux (x64 AppImage)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-x64.AppImage)
-- [Download for Linux (x64 deb)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-x64.deb)
+- [Download for Linux (x64 AppImage)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-x86_64.AppImage)
+- [Download for Linux (x64 deb)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.0-linux-amd64.deb)
 - [View all releases](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest)
 
 ### Install on macOS
