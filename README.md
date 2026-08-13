@@ -6,9 +6,22 @@ The application starts the official `@deepseek-ai/dsh` Web profile on a random l
 
 ## Download
 
-Download the latest macOS Apple Silicon build from [GitHub Releases](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest).
+Download the latest macOS Apple Silicon installer:
 
-The release is ad-hoc signed for bundle integrity but is not Apple-notarized. On first launch, macOS may require you to right-click the app, choose **Open**, and confirm.
+- [Download for Mac (Apple Silicon DMG)](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.1.2-arm64.dmg)
+- [View all releases](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest)
+
+## Install on macOS
+
+The release is ad-hoc signed for bundle integrity but is not Apple-notarized. Follow these steps the first time you open it:
+
+1. Open the downloaded DMG and drag **DeepSeek Harness** into **Applications**.
+2. Open **DeepSeek Harness**. If macOS blocks it, click **Done**.
+3. Open **System Settings → Privacy & Security**.
+4. Scroll to **Security**, find the message about **DeepSeek Harness**, and click **Open Anyway**.
+5. Confirm by clicking **Open** once more.
+
+You only need to complete the Privacy & Security confirmation once.
 
 ## Development
 
