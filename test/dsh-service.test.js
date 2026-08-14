@@ -2,9 +2,11 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import path from 'node:path'
 import {
+  buildDshCommand,
   buildDshArgs,
   extractReadyUrl,
   resolveDshEntry,
+  resolveWindowsHiddenConsoleLauncher,
   resolveWindowsPickerPatch,
   unpackedPath,
 } from '../src/dsh-service.js'
@@ -65,4 +67,55 @@ test('buildDshArgs pins the browse directory picker on Windows', () => {
     '0',
   ])
   assert.equal(resolveWindowsPickerPatch().endsWith('windows-directory-picker.patch.yml'), true)
+})
+
+test('buildDshCommand uses the hidden-console launcher on Windows', () => {
+  assert.deepEqual(buildDshCommand({
+    electronExecutable: 'C:\\app\\DeepSeek Harness.exe',
+    entry: 'C:\\app\\dsh.js',
+    platform: 'win32',
+    windowsLauncher: 'C:\\app\\windows-hidden-console.exe',
+  }), {
+    command: 'C:\\app\\windows-hidden-console.exe',
+    args: [
+      'C:\\app\\DeepSeek Harness.exe',
+      '--expose-internals',
+      'C:\\app\\dsh.js',
+      '--profile',
+      'web',
+      '--patch',
+      resolveWindowsPickerPatch(),
+      '--host',
+      '127.0.0.1',
+      '--port',
+      '0',
+    ],
+  })
+})
+
+test('buildDshCommand starts Electron directly on other platforms', () => {
+  assert.deepEqual(buildDshCommand({
+    electronExecutable: '/app/electron',
+    entry: '/app/dsh.js',
+    platform: 'linux',
+  }), {
+    command: '/app/electron',
+    args: [
+      '--expose-internals',
+      '/app/dsh.js',
+      '--profile',
+      'web',
+      '--host',
+      '127.0.0.1',
+      '--port',
+      '0',
+    ],
+  })
+})
+
+test('resolveWindowsHiddenConsoleLauncher points to the packaged launcher', () => {
+  assert.equal(
+    resolveWindowsHiddenConsoleLauncher().endsWith(path.join('assets', 'windows-hidden-console.exe')),
+    true,
+  )
 })

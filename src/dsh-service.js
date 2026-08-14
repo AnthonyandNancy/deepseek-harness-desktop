@@ -19,6 +19,10 @@ export function resolveWindowsPickerPatch() {
   return fileURLToPath(new URL('../config/windows-directory-picker.patch.yml', import.meta.url))
 }
 
+export function resolveWindowsHiddenConsoleLauncher() {
+  return fileURLToPath(new URL('../assets/windows-hidden-console.exe', import.meta.url))
+}
+
 export function buildDshArgs(entry, {
   platform = process.platform,
   windowsPickerPatch = resolveWindowsPickerPatch(),
@@ -36,18 +40,38 @@ export function buildDshArgs(entry, {
   ]
 }
 
+export function buildDshCommand({
+  electronExecutable,
+  entry = resolveDshEntry(),
+  platform = process.platform,
+  windowsLauncher = resolveWindowsHiddenConsoleLauncher(),
+} = {}) {
+  if (!electronExecutable) {
+    throw new Error('electronExecutable is required')
+  }
+
+  const args = buildDshArgs(entry, { platform })
+  return platform === 'win32'
+    ? { command: windowsLauncher, args: [electronExecutable, ...args] }
+    : { command: electronExecutable, args }
+}
+
 export function startDshService({
   electronExecutable,
   entry = resolveDshEntry(),
   environment = process.env,
   platform = process.platform,
   timeoutMs = 60_000,
+  windowsLauncher = resolveWindowsHiddenConsoleLauncher(),
 } = {}) {
-  if (!electronExecutable) {
-    throw new Error('electronExecutable is required')
-  }
+  const { command, args } = buildDshCommand({
+    electronExecutable,
+    entry,
+    platform,
+    windowsLauncher,
+  })
 
-  const child = spawn(electronExecutable, buildDshArgs(entry, { platform }), {
+  const child = spawn(command, args, {
     env: {
       ...environment,
       ELECTRON_RUN_AS_NODE: '1',
