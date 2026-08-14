@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/steven-kid/deepseek-harness-desktop.git"
   },
-  "homepage": "https://github.com/steven-kid/deepseek-harness-desktop#readme",
+  "homepage": "https://deepseek-harness-desktop.vercel.app",
   "bugs": {
     "url": "https://github.com/steven-kid/deepseek-harness-desktop/issues"
   },

@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  <a href="https://deepseek-harness-desktop.vercel.app"><strong>Official Website / 官网</strong></a>
+</p>
+
+<p align="center">
   <a href="#简体中文">简体中文</a> · <a href="#english">English</a>
 </p>
 
