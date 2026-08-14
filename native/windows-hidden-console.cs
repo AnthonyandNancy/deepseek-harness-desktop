@@ -1,15 +1,38 @@
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 internal static class WindowsHiddenConsole
 {
+    private const uint CreateNewConsole = 0x00000010;
+    private const uint CreateSuspended = 0x00000004;
+    private const uint Infinite = 0xffffffff;
     private const uint JobObjectLimitKillOnJobClose = 0x00002000;
     private const int JobObjectExtendedLimitInformation = 9;
+    private const uint StartfUseShowWindow = 0x00000001;
+    private const uint StartfUseStdHandles = 0x00000100;
+    private const short SwHide = 0;
+    private const int StdInputHandle = -10;
+    private const int StdOutputHandle = -11;
+    private const int StdErrorHandle = -12;
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern bool CreateProcess(
+        string applicationName,
+        StringBuilder commandLine,
+        IntPtr processAttributes,
+        IntPtr threadAttributes,
+        bool inheritHandles,
+        uint creationFlags,
+        IntPtr environment,
+        string currentDirectory,
+        ref StartupInfo startupInfo,
+        out ProcessInformation processInformation);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr GetStdHandle(int standardHandle);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern IntPtr CreateJobObject(IntPtr jobAttributes, string name);
@@ -25,7 +48,51 @@ internal static class WindowsHiddenConsole
     private static extern bool AssignProcessToJobObject(IntPtr job, IntPtr process);
 
     [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern uint ResumeThread(IntPtr thread);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern uint WaitForSingleObject(IntPtr handle, uint milliseconds);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool GetExitCodeProcess(IntPtr process, out uint exitCode);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool TerminateProcess(IntPtr process, uint exitCode);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool CloseHandle(IntPtr handle);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct StartupInfo
+    {
+        public uint Size;
+        public string Reserved;
+        public string Desktop;
+        public string Title;
+        public uint X;
+        public uint Y;
+        public uint XSize;
+        public uint YSize;
+        public uint XCountChars;
+        public uint YCountChars;
+        public uint FillAttribute;
+        public uint Flags;
+        public short ShowWindow;
+        public short Reserved2;
+        public IntPtr Reserved2Pointer;
+        public IntPtr StandardInput;
+        public IntPtr StandardOutput;
+        public IntPtr StandardError;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct ProcessInformation
+    {
+        public IntPtr Process;
+        public IntPtr Thread;
+        public uint ProcessId;
+        public uint ThreadId;
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct IoCounters
@@ -85,47 +152,65 @@ internal static class WindowsHiddenConsole
     private static int Run(string[] args)
     {
         IntPtr job = CreateKillOnCloseJob();
+        ProcessInformation process = new ProcessInformation();
         try
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            StartupInfo startupInfo = new StartupInfo
             {
-                FileName = args[0],
-                Arguments = BuildArgumentString(args),
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = false,
-                WindowStyle = ProcessWindowStyle.Hidden,
+                Size = (uint)Marshal.SizeOf(typeof(StartupInfo)),
+                Flags = StartfUseShowWindow | StartfUseStdHandles,
+                ShowWindow = SwHide,
+                StandardInput = GetStdHandle(StdInputHandle),
+                StandardOutput = GetStdHandle(StdOutputHandle),
+                StandardError = GetStdHandle(StdErrorHandle),
             };
 
-            using (Process child = Process.Start(startInfo))
+            StringBuilder commandLine = BuildCommandLine(args);
+            if (!CreateProcess(
+                args[0],
+                commandLine,
+                IntPtr.Zero,
+                IntPtr.Zero,
+                true,
+                CreateNewConsole | CreateSuspended,
+                IntPtr.Zero,
+                null,
+                ref startupInfo,
+                out process))
             {
-                if (child == null)
-                {
-                    throw new InvalidOperationException("The child process did not start.");
-                }
-
-                if (!AssignProcessToJobObject(job, child.Handle))
-                {
-                    int error = Marshal.GetLastWin32Error();
-                    child.Kill();
-                    throw new Win32Exception(error, "AssignProcessToJobObject failed");
-                }
-
-                Stream output = Console.OpenStandardOutput();
-                Stream errorOutput = Console.OpenStandardError();
-                Task outputCopy = child.StandardOutput.BaseStream.CopyToAsync(output);
-                Task errorCopy = child.StandardError.BaseStream.CopyToAsync(errorOutput);
-
-                child.WaitForExit();
-                Task.WaitAll(outputCopy, errorCopy);
-                output.Flush();
-                errorOutput.Flush();
-                return child.ExitCode;
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "CreateProcess failed");
             }
+
+            if (!AssignProcessToJobObject(job, process.Process))
+            {
+                int error = Marshal.GetLastWin32Error();
+                TerminateProcess(process.Process, 1);
+                throw new Win32Exception(error, "AssignProcessToJobObject failed");
+            }
+
+            if (ResumeThread(process.Thread) == uint.MaxValue)
+            {
+                int error = Marshal.GetLastWin32Error();
+                TerminateProcess(process.Process, 1);
+                throw new Win32Exception(error, "ResumeThread failed");
+            }
+
+            if (WaitForSingleObject(process.Process, Infinite) == uint.MaxValue)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "WaitForSingleObject failed");
+            }
+
+            uint exitCode;
+            if (!GetExitCodeProcess(process.Process, out exitCode))
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "GetExitCodeProcess failed");
+            }
+            return unchecked((int)exitCode);
         }
         finally
         {
+            if (process.Thread != IntPtr.Zero) CloseHandle(process.Thread);
+            if (process.Process != IntPtr.Zero) CloseHandle(process.Process);
             CloseHandle(job);
         }
     }
@@ -164,10 +249,10 @@ internal static class WindowsHiddenConsole
         return job;
     }
 
-    private static string BuildArgumentString(string[] args)
+    private static StringBuilder BuildCommandLine(string[] args)
     {
         StringBuilder command = new StringBuilder();
-        for (int index = 1; index < args.Length; index++)
+        for (int index = 0; index < args.Length; index++)
         {
             if (command.Length > 0)
             {
@@ -175,7 +260,7 @@ internal static class WindowsHiddenConsole
             }
             command.Append(QuoteArgument(args[index]));
         }
-        return command.ToString();
+        return command;
     }
 
     private static string QuoteArgument(string argument)
