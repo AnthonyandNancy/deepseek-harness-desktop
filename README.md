@@ -22,7 +22,7 @@
   <img alt="Linux" src="https://img.shields.io/badge/Linux-x64-171513.svg?style=flat-square" />
 </p>
 
-<img width="2880" height="1876" alt="DeepSeek Harness Desktop" src="https://github.com/user-attachments/assets/8ef533e0-dd4f-439a-a24a-dbb22bb45b0f" />
+<img width="2880" height="1882" alt="image" src="https://github.com/user-attachments/assets/4252ec13-c09b-4e74-996f-cf4d1bcb74c8" />
 
 <a id="简体中文"></a>
 
