@@ -68,6 +68,7 @@ DeepSeek Harness 已经提供完整的 Agent Runtime 和 Web UI。本项目不�
 - 应用退出时自动终止 Harness 子进程
 - Web 服务仅监听随机本地回环端口，不暴露到局域网
 - macOS 支持 Apple Silicon 和 Intel
+- macOS 标题栏会与 DSH 当前浅色或深色主题自然融合
 - Windows 支持 x64 安装程序与便携 ZIP
 - Linux 支持 x64 AppImage 和 deb
 - Windows 使用官方应用内目录浏览器，避免打包环境下的原生文件夹对话框异常

@@ -68,6 +68,7 @@ DeepSeek Harness already provides the complete agent runtime and Web UI. This pr
 - Gracefully terminates the Harness child process on application exit
 - Listens only on a random local loopback port
 - Supports macOS on Apple Silicon and Intel
+- Blends the macOS title bar with the active DSH light or dark theme
 - Provides a Windows x64 installer and portable ZIP
 - Provides Linux x64 AppImage and deb packages
 - Uses the official in-app directory browser on Windows to avoid packaged native-dialog worker failures

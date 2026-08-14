@@ -1,6 +1,16 @@
 import { fileURLToPath } from 'node:url'
-import { app, BrowserWindow, dialog, Menu, nativeImage, shell, Tray } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  Menu,
+  nativeImage,
+  nativeTheme,
+  shell,
+  Tray,
+} from 'electron'
 import { startDshService } from './dsh-service.js'
+import { applyMacTitleBarStyle } from './mac-titlebar.js'
 import { createWindowOptions } from './window-options.js'
 import { createTrayMenuTemplate, shouldHideWindowOnClose } from './window-lifecycle.js'
 
@@ -31,7 +41,7 @@ async function showMainWindow() {
 function createWindow() {
   if (process.platform === 'win32') Menu.setApplicationMenu(null)
 
-  mainWindow = new BrowserWindow(createWindowOptions())
+  mainWindow = new BrowserWindow(createWindowOptions(process.platform, nativeTheme.shouldUseDarkColors))
 
   if (process.platform === 'win32') {
     mainWindow.setMenu(null)
@@ -49,6 +59,10 @@ function createWindow() {
       event.preventDefault()
       void shell.openExternal(url)
     }
+  })
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (process.platform === 'darwin') void applyMacTitleBarStyle(mainWindow.webContents)
   })
 
   mainWindow.once('ready-to-show', () => mainWindow?.show())

@@ -1,4 +1,6 @@
-export function createWindowOptions(platform = process.platform) {
+export function createWindowOptions(platform = process.platform, useDarkColors = false) {
+  const isMac = platform === 'darwin'
+
   return {
     width: 1440,
     height: 960,
@@ -6,8 +8,9 @@ export function createWindowOptions(platform = process.platform) {
     minHeight: 640,
     show: false,
     title: 'DeepSeek Harness',
-    backgroundColor: '#f5f7fb',
-    titleBarStyle: 'default',
+    backgroundColor: useDarkColors ? '#151517' : '#ffffff',
+    titleBarStyle: isMac ? 'hiddenInset' : 'default',
+    titleBarOverlay: isMac,
     autoHideMenuBar: platform === 'win32',
     webPreferences: {
       contextIsolation: true,
