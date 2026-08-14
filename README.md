@@ -46,7 +46,7 @@ DeepSeek Harness Desktop 将官方 DeepSeek Harness Web 体验封装为独立桌
 | Linux | x64 | AppImage | [下载 AppImage](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.1-linux-x86_64.AppImage) |
 | Debian / Ubuntu | x64 | deb | [下载 deb](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.1-linux-amd64.deb) |
 
-全部当前和历史安装包可在 [GitHub Releases](https://github.com/steven-kid/deepseek-harness-desktop/releases) 查看。
+全部当前和历史安装包可在 [GitHub Releases](https://github.com/steven-kid/deepseek-harness-desktop/releases) 查看，也可以通过夸克网盘镜像下载：[夸克网盘 - DeepSeek Harness Desktop v0.3.1](https://pan.quark.cn/s/e2dfc232c52d)
 
 ### 为什么需要桌面版
 
@@ -176,7 +176,7 @@ This project focuses on desktop hosting. It does not fork, modify, inject into, 
 | Linux | x64 | AppImage | [Download AppImage](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.1-linux-x86_64.AppImage) |
 | Debian / Ubuntu | x64 | deb | [Download deb](https://github.com/steven-kid/deepseek-harness-desktop/releases/latest/download/DeepSeek-Harness-Desktop-0.3.1-linux-amd64.deb) |
 
-All current and historical packages are available on the [GitHub Releases page](https://github.com/steven-kid/deepseek-harness-desktop/releases).
+All current and historical packages are available on the [GitHub Releases page](https://github.com/steven-kid/deepseek-harness-desktop/releases), and you can also download from the Quark Drive mirror: [Quark Drive - DeepSeek Harness Desktop v0.3.1](https://pan.quark.cn/s/e2dfc232c52d)
 
 ### Why this project exists
 
