@@ -1,8 +1,8 @@
 import { app, BrowserWindow, dialog, Menu, shell } from 'electron'
 import { startDshService } from './dsh-service.js'
+import { createWindowOptions } from './window-options.js'
 
 const APP_NAME = 'DeepSeek Harness'
-const STARTUP_BACKGROUND = '#f5f7fb'
 
 let mainWindow
 let service
@@ -13,22 +13,7 @@ app.setName(APP_NAME)
 function createWindow(url) {
   if (process.platform === 'win32') Menu.setApplicationMenu(null)
 
-  mainWindow = new BrowserWindow({
-    width: 1440,
-    height: 960,
-    minWidth: 960,
-    minHeight: 640,
-    show: false,
-    title: APP_NAME,
-    backgroundColor: STARTUP_BACKGROUND,
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-    autoHideMenuBar: process.platform === 'win32',
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: true,
-    },
-  })
+  mainWindow = new BrowserWindow(createWindowOptions())
 
   if (process.platform === 'win32') {
     mainWindow.setMenu(null)
