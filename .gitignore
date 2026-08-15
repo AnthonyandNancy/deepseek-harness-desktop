@@ -5,3 +5,6 @@ output/
 .vercel/
 *.log
 .DS_Store
+assets/dsh-node.exe
+assets/windows-hidden-console.exe
+third-party-licenses/nodejs-LICENSE

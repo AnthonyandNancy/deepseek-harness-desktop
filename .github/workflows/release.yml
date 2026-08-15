@@ -50,7 +50,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run build:win-launcher
+      - run: npm run prepare:windows
       - run: npm test
       - run: npm run test:win-console
       - run: npm run dist:win

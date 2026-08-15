@@ -7,6 +7,7 @@ import {
   extractReadyUrl,
   resolveDshEntry,
   resolveWindowsHiddenConsoleLauncher,
+  resolveWindowsNodeExecutable,
   resolveWindowsPickerPatch,
   unpackedPath,
 } from '../src/dsh-service.js'
@@ -75,10 +76,11 @@ test('buildDshCommand uses the hidden-console launcher on Windows', () => {
     entry: 'C:\\app\\dsh.js',
     platform: 'win32',
     windowsLauncher: 'C:\\app\\windows-hidden-console.exe',
+    windowsNodeExecutable: 'C:\\app\\dsh-node.exe',
   }), {
     command: 'C:\\app\\windows-hidden-console.exe',
     args: [
-      'C:\\app\\DeepSeek Harness.exe',
+      'C:\\app\\dsh-node.exe',
       '--expose-internals',
       'C:\\app\\dsh.js',
       '--profile',
@@ -116,6 +118,13 @@ test('buildDshCommand starts Electron directly on other platforms', () => {
 test('resolveWindowsHiddenConsoleLauncher points to the packaged launcher', () => {
   assert.equal(
     resolveWindowsHiddenConsoleLauncher().endsWith(path.join('assets', 'windows-hidden-console.exe')),
+    true,
+  )
+})
+
+test('resolveWindowsNodeExecutable points to the packaged console-subsystem Node runtime', () => {
+  assert.equal(
+    resolveWindowsNodeExecutable().endsWith(path.join('assets', 'dsh-node.exe')),
     true,
   )
 })

@@ -23,6 +23,10 @@ export function resolveWindowsHiddenConsoleLauncher() {
   return fileURLToPath(new URL('../assets/windows-hidden-console.exe', import.meta.url))
 }
 
+export function resolveWindowsNodeExecutable() {
+  return fileURLToPath(new URL('../assets/dsh-node.exe', import.meta.url))
+}
+
 export function buildDshArgs(entry, {
   platform = process.platform,
   windowsPickerPatch = resolveWindowsPickerPatch(),
@@ -45,6 +49,7 @@ export function buildDshCommand({
   entry = resolveDshEntry(),
   platform = process.platform,
   windowsLauncher = resolveWindowsHiddenConsoleLauncher(),
+  windowsNodeExecutable = resolveWindowsNodeExecutable(),
 } = {}) {
   if (!electronExecutable) {
     throw new Error('electronExecutable is required')
@@ -52,7 +57,7 @@ export function buildDshCommand({
 
   const args = buildDshArgs(entry, { platform })
   return platform === 'win32'
-    ? { command: windowsLauncher, args: [electronExecutable, ...args] }
+    ? { command: windowsLauncher, args: [windowsNodeExecutable, ...args] }
     : { command: electronExecutable, args }
 }
 
@@ -63,18 +68,20 @@ export function startDshService({
   platform = process.platform,
   timeoutMs = 60_000,
   windowsLauncher = resolveWindowsHiddenConsoleLauncher(),
+  windowsNodeExecutable = resolveWindowsNodeExecutable(),
 } = {}) {
   const { command, args } = buildDshCommand({
     electronExecutable,
     entry,
     platform,
     windowsLauncher,
+    windowsNodeExecutable,
   })
 
   const child = spawn(command, args, {
     env: {
       ...environment,
-      ELECTRON_RUN_AS_NODE: '1',
+      ...(platform === 'win32' ? {} : { ELECTRON_RUN_AS_NODE: '1' }),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   })

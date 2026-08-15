@@ -20,6 +20,8 @@
   "scripts": {
     "start": "electron .",
     "test": "node --test test/*.test.js",
+    "postinstall": "node scripts/prepare-dependencies.mjs",
+    "prepare:windows": "node scripts/prepare-dependencies.mjs && npm run build:win-launcher",
     "build:win-launcher": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/build-windows-launcher.ps1",
     "test:win-console": "node scripts/test-windows-hidden-console.mjs",
     "smoke:packaged": "node scripts/smoke-packaged.mjs",
@@ -28,7 +30,7 @@
     "dist:mac": "npm run dist:mac:arm64",
     "dist:mac:arm64": "electron-builder --mac dmg zip --arm64 --publish never",
     "dist:mac:x64": "electron-builder --mac dmg zip --x64 --publish never",
-    "dist:win": "npm run build:win-launcher && electron-builder --win nsis zip --x64 --publish never",
+    "dist:win": "npm run prepare:windows && electron-builder --win nsis zip --x64 --publish never",
     "dist:linux": "electron-builder --linux AppImage deb --x64 --publish never"
   },
   "dependencies": {
@@ -70,6 +72,7 @@
       "assets/tray.png",
       "assets/trayTemplate.png",
       "assets/trayTemplate@2x.png",
+      "assets/dsh-node.exe",
       "assets/windows-hidden-console.exe",
       "package.json",
       "LICENSE",
