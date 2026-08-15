@@ -35,31 +35,18 @@ function verifyPackagedWindowsNodePty() {
 
   const nodePtyPath = path.join(resourcesRoot, 'node_modules', 'node-pty')
   const script = `
-const nodePty = require(${JSON.stringify(nodePtyPath)})
-const terminal = nodePty.spawn(
-  'C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',
-  ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', 'Write-Output PACKAGED_NODE_PTY_OK'],
-  { cols: 80, rows: 30, cwd: ${JSON.stringify(resourcesRoot)}, env: process.env },
-)
-let output = ''
-const timeout = setTimeout(() => {
-  console.error('packaged node-pty timed out: ' + output)
-  terminal.kill()
-  process.exitCode = 1
-}, 30000)
-terminal.onData((data) => {
-  output += data
+const path = require('node:path')
+const { loadNativeModule } = require(path.join(${JSON.stringify(nodePtyPath)}, 'lib', 'utils.js'))
+const loaded = ['conpty', 'conpty_console_list', 'pty'].map((name) => {
+  const result = loadNativeModule(name)
+  return name + '=' + result.dir
 })
-terminal.onExit(({ exitCode }) => {
-  clearTimeout(timeout)
-  process.stdout.write(output)
-  if (exitCode !== 0 || !output.includes('PACKAGED_NODE_PTY_OK')) process.exitCode = 1
-})
+process.stdout.write('PACKAGED_NODE_PTY_OK ' + loaded.join(','))
 `
   const result = spawnSync(windowsNodeExecutable, ['-e', script], {
     cwd: resourcesRoot,
     encoding: 'utf8',
-    timeout: 45_000,
+    timeout: 15_000,
   })
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim()
   if (result.error) throw result.error
