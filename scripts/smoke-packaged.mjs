@@ -151,11 +151,16 @@ try {
     await once(service.child, 'exit')
   }
   if (temporaryRoot !== undefined) {
-    rmSync(temporaryRoot, {
-      recursive: true,
-      force: true,
-      maxRetries: process.platform === 'win32' ? 10 : 0,
-      retryDelay: 200,
-    })
+    try {
+      rmSync(temporaryRoot, {
+        recursive: true,
+        force: true,
+        maxRetries: process.platform === 'win32' ? 10 : 0,
+        retryDelay: 200,
+      })
+    } catch (error) {
+      if (process.platform !== 'win32') throw error
+      console.warn(`packaged smoke cleanup skipped: ${error.message}`)
+    }
   }
 }
