@@ -482,6 +482,8 @@ button {
   color: rgba(255, 255, 255, 0.86);
   font-family: var(--mono-font);
   font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

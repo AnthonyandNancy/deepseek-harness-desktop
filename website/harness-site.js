@@ -5,7 +5,7 @@ const translations = {
     downloads: "下载",
     desktopPreview: "桌面版",
     preview: "DeepSeek Harness 非官方桌面版",
-    headline: "让 Harness 随手可用",
+    headline: "Harness 桌面即用",
     heroParagraphOne:
       "将官方 DeepSeek Harness 完整封装为桌面应用，无需命令行，也无需手动管理端口。",
     heroParagraphTwo:
@@ -61,7 +61,7 @@ const translations = {
     downloads: "Downloads",
     desktopPreview: "Desktop",
     preview: "Unofficial DeepSeek Harness Desktop",
-    headline: "Harness, always within reach",
+    headline: "Harness on desktop",
     heroParagraphOne:
       "The official DeepSeek Harness, packaged as a desktop app. No terminal and no port management required.",
     heroParagraphTwo:
@@ -190,7 +190,7 @@ document.querySelectorAll(".language-button").forEach((button) => {
 });
 
 const terminalCommands = {
-  download: "$ open https://github.com/steven-kid/deepseek-harness-desktop/releases/latest",
+  download: "$ open DeepSeek-Harness-Desktop*.dmg",
   source: "$ git clone https://github.com/steven-kid/deepseek-harness-desktop",
 };
 
