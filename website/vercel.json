@@ -3,7 +3,7 @@
   "trailingSlash": false,
   "headers": [
     {
-      "source": "/(product-screenshot.jpg|logo.svg)",
+      "source": "/(product-screenshot.jpg|logo.svg|deepseek-wordmark.svg|hero-whale.svg|.*\\.woff2)",
       "headers": [
         {
           "key": "Cache-Control",

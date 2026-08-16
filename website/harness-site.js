@@ -1,81 +1,115 @@
 const translations = {
   zh: {
     features: "桌面能力",
+    design: "设计思路",
     downloads: "下载",
-    officialDocs: "官方文档",
-    preview: "非官方社区桌面版",
-    headlinePrimary: "让 Harness",
-    headlineAccent: "桌面即用",
-    description:
-      "将官方 DeepSeek Harness 完整封装为原生桌面体验。无需命令行，无需管理端口，打开应用即可开始工作。",
+    desktopPreview: "桌面版",
+    preview: "DeepSeek Harness 非官方桌面版",
+    headline: "让 Harness 随手可用",
+    heroParagraphOne:
+      "将官方 DeepSeek Harness 完整封装为桌面应用，无需命令行，也无需手动管理端口。",
+    heroParagraphTwo:
+      "保留模型、工具、技能、会话、沙箱、存储和插件等全部能力，打开应用即可开始工作。",
     downloadMac: "下载 macOS 版",
     downloadWindows: "下载 Windows 版",
     downloadLinux: "下载 Linux 版",
     allDownloads: "全部下载",
     quark: "夸克网盘",
-    availableFor: "支持平台",
-    running: "Local · Running",
-    desktopExperience: "完整 Harness 能力，原生桌面体验",
-    desktopEdition: "Desktop Edition",
-    featureTitle: "少一点配置，多一点专注",
-    featureDescription:
-      "保留官方 Harness 的能力与界面，只补齐桌面端需要的启动、窗口和系统集成。",
-    featureOneTitle: "打开即用",
-    featureOneDescription:
-      "自动启动 Harness 服务、选择可用端口并加载 Web UI，不再记忆命令或维护终端进程。",
-    openApp: "打开应用",
-    featureTwoTitle: "本地优先",
-    featureTwoDescription: "Harness 在本机运行，工作目录和会话保持在你的设备上。",
-    featureThreeTitle: "跨平台",
-    featureThreeDescription:
-      "同时提供 macOS、Windows 和 Linux 安装包，覆盖 Apple Silicon 与 Intel Mac。",
-    startNow: "Get Started",
-    mirrorTitle: "选择适合你的版本",
-    downloadDescription: "当前版本 v0.3.5，可从 GitHub Releases 或夸克网盘下载。",
-    otherChannels: "其他下载渠道",
-    mirrorDescription: "历史版本、压缩包与国内镜像",
+    oneClick: "一键安装",
+    sourceInstall: "源码安装",
+    copy: "复制",
+    introTitle: "让 Agent 在桌面上持续工作",
+    introDescription:
+      "模型是 Agent 的灵魂。Harness 赋予 Agent 理解环境和使用工具的能力，Desktop 则让这一切打开即用。",
+    capabilityOneTitle: "原生桌面封装",
+    capabilityOneDescription:
+      "保留官方 Web UI 与 Harness 内核，只增加桌面窗口、生命周期和系统集成。",
+    capabilityTwoTitle: "自动启动服务",
+    capabilityTwoDescription:
+      "自动选择可用端口、启动本地服务并加载界面，不再维护终端进程。",
+    capabilityThreeTitle: "跨平台发布",
+    capabilityThreeDescription:
+      "提供 Apple Silicon、Intel Mac、Windows x64 与 Linux x64 安装包。",
+    designLabel: "设计思路",
+    designTitle: "能力保持不变，使用方式更加自然",
+    designOneTitle: "打开即用",
+    designOneDescription:
+      "启动应用时自动拉起 DeepSeek Harness，并在服务准备完成后加载官方 Web UI。你无需记住命令，也不必处理端口冲突。",
+    designTwoTitle: "本地运行，有迹可循",
+    designTwoDescription:
+      "Harness 服务运行在本机，工作目录、会话与工具调用保持原有机制。桌面封装不会改变 Harness 的能力边界。",
+    designThreeTitle: "适配不同系统",
+    designThreeDescription:
+      "在 macOS、Windows 和 Linux 上使用一致的 Harness 体验，并针对系统窗口、菜单、托盘与目录选择器进行适配。",
+    runtimeReady: "已就绪",
+    localDirectory: "本地目录",
+    persistent: "持续保存",
+    demoTitle: "完整的 DeepSeek Harness，原生的桌面体验",
+    startNow: "开始使用",
+    downloadTitle: "选择适合你的安装包",
+    macDescription: "支持 Apple Silicon 与 Intel Mac。",
+    otherPlatformsDescription: "提供 Windows 安装程序与 Linux AppImage。",
+    joinTitle: "让 Harness 随手可用",
+    joinDescription:
+      "这是一个非官方社区项目，只封装桌面端能力，不修改 DeepSeek Harness 本身。欢迎下载、反馈与共同完善。",
+    viewGithub: "查看 GitHub",
     community: "非官方社区项目",
-    powered: "Powered by",
   },
   en: {
     features: "Desktop",
+    design: "Design",
     downloads: "Downloads",
-    officialDocs: "Official Docs",
-    preview: "Unofficial community desktop edition",
-    headlinePrimary: "Harness,",
-    headlineAccent: "ready on desktop",
-    description:
-      "The complete DeepSeek Harness experience, packaged as a native desktop app. No terminal or port management—open the app and start working.",
+    desktopPreview: "Desktop",
+    preview: "Unofficial DeepSeek Harness Desktop",
+    headline: "Harness, always within reach",
+    heroParagraphOne:
+      "The official DeepSeek Harness, packaged as a desktop app. No terminal and no port management required.",
+    heroParagraphTwo:
+      "Models, tools, skills, sessions, sandboxes, storage, and plugins all remain intact. Open the app and start working.",
     downloadMac: "Download for macOS",
     downloadWindows: "Download for Windows",
     downloadLinux: "Download for Linux",
     allDownloads: "All downloads",
     quark: "Quark Drive",
-    availableFor: "Available for",
-    running: "Local · Running",
-    desktopExperience: "Full Harness capabilities, native desktop experience",
-    desktopEdition: "Desktop Edition",
-    featureTitle: "Less setup. More focus.",
-    featureDescription:
-      "The official Harness capabilities and UI remain intact. The desktop app only adds startup, window, and system integration.",
-    featureOneTitle: "Open and go",
-    featureOneDescription:
-      "Starts Harness, selects an available port, and loads the Web UI automatically—no commands or terminal processes to manage.",
-    openApp: "Open the app",
-    featureTwoTitle: "Local first",
-    featureTwoDescription:
-      "Harness runs locally, keeping your working directories and sessions on your device.",
-    featureThreeTitle: "Cross-platform",
-    featureThreeDescription:
-      "Installers for macOS, Windows, and Linux, including both Apple Silicon and Intel Mac.",
+    oneClick: "One-click install",
+    sourceInstall: "From source",
+    copy: "Copy",
+    introTitle: "keeps agents working on your desktop",
+    introDescription:
+      "The model is the soul of an agent. Harness provides the environment and tools; Desktop makes the full experience ready to open.",
+    capabilityOneTitle: "Native desktop shell",
+    capabilityOneDescription:
+      "The official Web UI and Harness runtime remain intact. Only desktop windows, lifecycle, and system integration are added.",
+    capabilityTwoTitle: "Automatic runtime",
+    capabilityTwoDescription:
+      "Selects an available port, starts the local service, and loads the UI without terminal process management.",
+    capabilityThreeTitle: "Cross-platform releases",
+    capabilityThreeDescription:
+      "Packages for Apple Silicon, Intel Mac, Windows x64, and Linux x64.",
+    designLabel: "Design",
+    designTitle: "The same capabilities, in a more natural workflow",
+    designOneTitle: "Open and go",
+    designOneDescription:
+      "The app starts DeepSeek Harness and loads the official Web UI when the service is ready. No commands to remember and no port conflicts to handle.",
+    designTwoTitle: "Local and traceable",
+    designTwoDescription:
+      "Harness runs locally, preserving the existing workspace, session, and tool-call mechanisms. The desktop shell does not change its capability boundaries.",
+    designThreeTitle: "Adapted to every system",
+    designThreeDescription:
+      "A consistent Harness experience on macOS, Windows, and Linux, with native handling for windows, menus, tray, and directory pickers.",
+    runtimeReady: "Ready",
+    localDirectory: "Local directory",
+    persistent: "Persistent",
+    demoTitle: "Complete DeepSeek Harness, native desktop experience",
     startNow: "Get Started",
-    mirrorTitle: "Choose your platform",
-    downloadDescription:
-      "Version v0.3.5 is available from GitHub Releases and Quark Drive.",
-    otherChannels: "Other download channels",
-    mirrorDescription: "Previous versions, archives, and China mirror",
+    downloadTitle: "Choose your installer",
+    macDescription: "Available for Apple Silicon and Intel Mac.",
+    otherPlatformsDescription: "Windows installer and Linux AppImage packages.",
+    joinTitle: "Harness, always within reach",
+    joinDescription:
+      "An unofficial community project that packages the desktop experience without changing DeepSeek Harness itself. Downloads and feedback are welcome.",
+    viewGithub: "View GitHub",
     community: "Unofficial community project",
-    powered: "Powered by",
   },
 };
 
@@ -154,5 +188,34 @@ function applyLanguage(language) {
 document.querySelectorAll(".language-button").forEach((button) => {
   button.addEventListener("click", () => applyLanguage(button.dataset.language));
 });
+
+const terminalCommands = {
+  download: "$ open https://github.com/steven-kid/deepseek-harness-desktop/releases/latest",
+  source: "$ git clone https://github.com/steven-kid/deepseek-harness-desktop",
+};
+
+document.querySelectorAll(".terminal-tab").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".terminal-tab").forEach((tab) => {
+      tab.classList.toggle("active", tab === button);
+    });
+    document.querySelector("#terminal-command").textContent =
+      terminalCommands[button.dataset.terminal];
+  });
+});
+
+document.querySelector(".copy-button").addEventListener("click", async () => {
+  const command = document.querySelector("#terminal-command").textContent.replace(/^\$ /, "");
+  await navigator.clipboard?.writeText(command);
+});
+
+const header = document.querySelector(".replica-header");
+
+function updateHeader() {
+  header.classList.toggle("scrolled", window.scrollY > 120);
+}
+
+window.addEventListener("scroll", updateHeader, { passive: true });
+updateHeader();
 
 applyLanguage(activeLanguage);
