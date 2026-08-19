@@ -5,17 +5,17 @@
   "type": "module",
   "main": "src/main.js",
   "author": {
-    "name": "Steven",
-    "email": "96154058+steven-kid@users.noreply.github.com"
+    "name": "Anthony",
+    "email": "1050070285@qq.com"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/steven-kid/deepseek-harness-desktop.git"
+    "url": "git+https://github.com/AnthonyandNancy/deepseek-harness-desktop.git"
   },
   "homepage": "https://deepseek-harness-desktop.vercel.app",
   "bugs": {
-    "url": "https://github.com/steven-kid/deepseek-harness-desktop/issues"
+    "url": "https://github.com/AnthonyandNancy/deepseek-harness-desktop/issues"
   },
   "scripts": {
     "start": "electron .",
@@ -63,7 +63,7 @@
   },
   "build": {
     "afterSign": "scripts/after-pack.cjs",
-    "appId": "io.github.steven-kid.deepseek-harness-desktop",
+    "appId": "io.github.anthonyandnancy.deepseek-harness-desktop",
     "productName": "DeepSeek Harness",
     "artifactName": "DeepSeek-Harness-Desktop-${version}-${arch}.${ext}",
     "asar": false,
