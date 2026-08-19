@@ -5,6 +5,12 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import { startDshService } from '../src/dsh-service.js'
+import {
+  assertPtyRoundTripOutput,
+  buildWindowsPtyNativeModuleScript,
+  buildWindowsPtyRoundTripScript,
+  createPtySmokeToken,
+} from './windows-pty-smoke.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const defaultAppPath = process.platform === 'win32'
@@ -34,28 +40,46 @@ function verifyPackagedWindowsNodePty() {
   if (process.platform !== 'win32') return
 
   const nodePtyPath = path.join(resourcesRoot, 'node_modules', 'node-pty')
-  const script = `
-const path = require('node:path')
-const { loadNativeModule } = require(path.join(${JSON.stringify(nodePtyPath)}, 'lib', 'utils.js'))
-const loaded = ['conpty', 'conpty_console_list', 'pty'].map((name) => {
-  const result = loadNativeModule(name)
-  return name + '=' + result.dir
-})
-process.stdout.write('PACKAGED_NODE_PTY_OK ' + loaded.join(','))
-`
+  const script = buildWindowsPtyNativeModuleScript({
+    nodePtyUtilsPath: path.join(nodePtyPath, 'lib', 'utils.js'),
+  })
   const result = spawnSync(windowsNodeExecutable, ['-e', script], {
-    cwd: resourcesRoot,
+    cwd: nodePtyPath,
     encoding: 'utf8',
     timeout: 15_000,
   })
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim()
   if (result.error) throw result.error
-  if (result.status !== 0 || !output.includes('PACKAGED_NODE_PTY_OK')) {
+  if (result.status !== 0 || !output.includes('NODE_PTY_NATIVE_OK')) {
     throw new Error(
       `Packaged Node runtime could not load node-pty (status ${String(result.status)}): ${output}`,
     )
   }
   console.log(`packaged node-pty smoke: ${output}`)
+}
+
+function verifyPackagedWindowsPtyRoundTrip() {
+  if (process.platform !== 'win32') return
+
+  const token = createPtySmokeToken()
+  const script = buildWindowsPtyRoundTripScript({
+    nodePtyPath: path.join(resourcesRoot, 'node_modules', 'node-pty'),
+    token,
+  })
+  const result = spawnSync(windowsNodeExecutable, ['-e', script], {
+    cwd: resourcesRoot,
+    encoding: 'utf8',
+    timeout: 90_000,
+  })
+  const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim()
+  if (result.error) throw result.error
+  assertPtyRoundTripOutput({
+    status: result.status,
+    output,
+    token,
+    context: 'Packaged Windows',
+  })
+  console.log(`packaged PTY round-trip smoke: ${output}`)
 }
 
 function verifyPackagedWindowsAclSandbox() {
@@ -117,6 +141,7 @@ try {
 }
 
 verifyPackagedWindowsNodePty()
+verifyPackagedWindowsPtyRoundTrip()
 verifyPackagedWindowsAclSandbox()
 
 const service = startDshService({

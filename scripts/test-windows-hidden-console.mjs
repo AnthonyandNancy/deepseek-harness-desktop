@@ -7,6 +7,11 @@ import {
   resolveWindowsHiddenConsoleLauncher,
   resolveWindowsNodeExecutable,
 } from '../src/dsh-service.js'
+import {
+  assertPtyRoundTripOutput,
+  buildWindowsPtyRoundTripScript,
+  createPtySmokeToken,
+} from './windows-pty-smoke.mjs'
 
 if (process.platform !== 'win32') {
   console.log('windows hidden-console test: skipped on non-Windows')
@@ -142,8 +147,30 @@ process.exitCode = result.status ?? 1
     )
   }
 
+  const ptyToken = createPtySmokeToken()
+  const ptyResult = spawnSync(
+    launcher,
+    [
+      nodeExecutable,
+      '-e',
+      buildWindowsPtyRoundTripScript({
+        nodePtyPath: path.join(root, 'node_modules', 'node-pty'),
+        token: ptyToken,
+      }),
+    ],
+    { cwd: root, encoding: 'utf8', timeout: 90_000 },
+  )
+  const ptyOutput = `${ptyResult.stdout ?? ''}${ptyResult.stderr ?? ''}`.trim()
+  if (ptyResult.error) throw ptyResult.error
+  assertPtyRoundTripOutput({
+    status: ptyResult.status,
+    output: ptyOutput,
+    token: ptyToken,
+    context: 'Windows',
+  })
+
   console.log(
-    `windows console test: subsystem=console, baseline=${baselineOutput}, fixed=${output}, acl=${aclOutput}`,
+    `windows console test: subsystem=console, baseline=${baselineOutput}, fixed=${output}, acl=${aclOutput}, pty=${ptyOutput}`,
   )
 } finally {
   rmSync(temporaryRoot, { recursive: true, force: true })

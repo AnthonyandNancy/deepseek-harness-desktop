@@ -1,0 +1,84 @@
+name: Upstream sync
+
+on:
+  schedule:
+    # Once a day; DeepSeek Harness publishes prereleases irregularly.
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+# This workflow only ever proposes an upgrade. It must not merge, tag, or
+# release Desktop: the pull request's CI decides whether an upstream release is
+# compatible with Electron hosting, the Windows launcher, node-pty, the ACL
+# sandbox, and the packaged Web UI, and a human decides whether to merge.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  propose-upgrade:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Read the pinned and latest DeepSeek Harness versions
+        id: versions
+        run: |
+          current=$(node -p "require('./package.json').dependencies['@deepseek-ai/dsh']")
+          latest=$(npm view @deepseek-ai/dsh version)
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+          echo "Desktop pins $current; npm latest is $latest."
+
+      - name: Propose the dependency upgrade
+        if: steps.versions.outputs.current != steps.versions.outputs.latest
+        run: node scripts/sync-dsh-upstream.mjs --version '${{ steps.versions.outputs.latest }}'
+
+      - name: Open the upgrade pull request
+        if: steps.versions.outputs.current != steps.versions.outputs.latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CURRENT: ${{ steps.versions.outputs.current }}
+          LATEST: ${{ steps.versions.outputs.latest }}
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "The sync script produced no changes; nothing to propose."
+            exit 0
+          fi
+
+          branch="chore/dsh-$LATEST"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            echo "Branch $branch already exists upstream; a proposal is already open."
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "$branch"
+          git add package.json package-lock.json config/dsh-upstream.json README.md README.zh-CN.md
+          git commit -m "chore: upgrade DeepSeek Harness to $LATEST"
+          git push origin "$branch"
+
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "chore: upgrade DeepSeek Harness to $LATEST" \
+            --body "$(cat <<EOF
+          Automated dependency proposal: re-pins the \`@deepseek-ai/dsh\` family from \`$CURRENT\` to \`$LATEST\`.
+
+          Desktop is an Electron host, not a fork of \`deepseek-ai/deepseek-harness\`, so this only bumps published npm packages — no upstream source is merged.
+
+          Review notes:
+
+          - Upstream release notes: https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v$LATEST
+          - \`config/dsh-upstream.json\` records the upstream tag and commit for this npm version.
+          - CI must pass on Linux, Windows, and macOS before merging. Windows covers the hidden-console launcher, the node-pty round trip, and the ACL sandbox.
+          - Re-check \`scripts/prepare-dependencies.mjs\`: it patches \`@deepseek-ai/dsh-host-apiproxy\` and fails loudly if upstream changed that implementation. A failure there is an upstream compatibility change to resolve deliberately, not something to work around.
+
+          Do not merge on green CI alone; confirm the release notes do not require a Desktop-side change.
+          EOF
+          )"
