@@ -88,13 +88,16 @@ export function buildDshArgs(entry, {
   platform = process.platform,
   windowsPickerPatch = resolveWindowsPickerPatch(),
 } = {}) {
+  // --patch is a launcher flag, --no-open is a web-app flag. The launcher
+  // passes everything through after the first flag it does not recognize, so
+  // --patch must come first or the web app would reject it as unknown.
   return [
     '--expose-internals',
     entry,
     '--profile',
     'web',
-    '--no-open',
     ...(platform === 'win32' ? ['--patch', windowsPickerPatch] : []),
+    '--no-open',
     '--host',
     '127.0.0.1',
     '--port',
