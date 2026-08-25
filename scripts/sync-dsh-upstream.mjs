@@ -181,6 +181,15 @@ export function updateReadme(source, previousVersion, version) {
     .replaceAll(`${RUNTIME_PACKAGE}@${previousVersion}`, `${RUNTIME_PACKAGE}@${version}`)
 }
 
+/**
+ * The packaged artifact name advertises the bundled DeepSeek Harness release
+ * (for example `...-dsh-0.1.1-rc.2-windows-x64.exe`). Keep that segment in sync
+ * when the sync script moves the whole family to a new upstream version.
+ */
+export function updateArtifactNames(source, previousVersion, version) {
+  return source.replaceAll(`-dsh-${previousVersion}-`, `-dsh-${version}-`)
+}
+
 export function buildUpstreamRecord({ version, tag, commit }) {
   return `${JSON.stringify({
     repository: UPSTREAM_REPOSITORY,
@@ -234,7 +243,11 @@ async function main() {
   else if (error === undefined) console.log(`upstream tag ${tag} is not published yet; recording without a commit`)
   else console.warn(`could not resolve upstream tag ${tag}: ${error}`)
 
-  writeFileSync(packageJsonPath, updateManifest(manifestSource, dependencies, targetVersion))
+  writeFileSync(packageJsonPath, updateArtifactNames(
+    updateManifest(manifestSource, dependencies, targetVersion),
+    currentVersion,
+    targetVersion,
+  ))
   writeFileSync(upstreamJsonPath, buildUpstreamRecord({ version: targetVersion, tag, commit }))
   for (const readmePath of readmePaths) {
     const source = readFileSync(readmePath, 'utf8')

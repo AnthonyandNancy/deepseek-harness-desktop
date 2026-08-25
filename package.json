@@ -1,6 +1,6 @@
 {
   "name": "deepseek-harness-desktop",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "An unofficial desktop wrapper for DeepSeek Harness.",
   "type": "module",
   "main": "src/main.js",
@@ -65,8 +65,9 @@
     "afterSign": "scripts/after-pack.cjs",
     "appId": "io.github.anthonyandnancy.deepseek-harness-desktop",
     "productName": "DeepSeek Harness",
-    "artifactName": "DeepSeek-Harness-Desktop-${version}-${arch}.${ext}",
+    "artifactName": "DeepSeek-Harness-Desktop-${version}-dsh-0.1.1-rc.2-${arch}.${ext}",
     "asar": false,
+    "npmRebuild": false,
     "files": [
       "src/**/*",
       "config/**/*",
@@ -108,7 +109,7 @@
     },
     "win": {
       "icon": "assets/icon.ico",
-      "artifactName": "DeepSeek-Harness-Desktop-${version}-windows-${arch}.${ext}",
+      "artifactName": "DeepSeek-Harness-Desktop-${version}-dsh-0.1.1-rc.2-windows-${arch}.${ext}",
       "target": [
         {
           "target": "nsis",
@@ -135,7 +136,7 @@
       "icon": "assets/icon.png",
       "category": "Development",
       "executableName": "deepseek-harness",
-      "artifactName": "DeepSeek-Harness-Desktop-${version}-linux-${arch}.${ext}",
+      "artifactName": "DeepSeek-Harness-Desktop-${version}-dsh-0.1.1-rc.2-linux-${arch}.${ext}",
       "target": [
         {
           "target": "AppImage",

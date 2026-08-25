@@ -7,6 +7,7 @@ import {
   collectDshDependencies,
   parseArguments,
   parseTagCommit,
+  updateArtifactNames,
   updateManifest,
   updateReadme,
 } from '../scripts/sync-dsh-upstream.mjs'
@@ -75,6 +76,19 @@ test('the README rewrite leaves historical version mentions alone', () => {
   assert.match(updated, /pins `@deepseek-ai\/dsh@0\.1\.0-rc\.8`/)
   assert.match(updated, /v0\.3\.4 shipped @deepseek-ai\/dsh@0\.1\.0-rc\.6/)
   assert.match(updated, /upgraded from 0\.1\.0-rc\.7 in an earlier note/)
+})
+
+test('the artifact name keeps the bundled DeepSeek Harness version in sync', () => {
+  const source = [
+    '"artifactName": "DeepSeek-Harness-Desktop-${version}-dsh-0.1.0-rc.8-${arch}.${ext}"',
+    '"artifactName": "DeepSeek-Harness-Desktop-${version}-dsh-0.1.0-rc.8-windows-${arch}.${ext}"',
+    '"artifactName": "DeepSeek-Harness-Desktop-${version}-dsh-0.1.0-rc.8-linux-${arch}.${ext}"',
+  ].join('\n')
+  const updated = updateArtifactNames(source, '0.1.0-rc.8', '0.1.1-rc.2')
+  assert.match(updated, /dsh-0\.1\.1-rc\.2-\$\{arch\}/)
+  assert.match(updated, /dsh-0\.1\.1-rc\.2-windows/)
+  assert.match(updated, /dsh-0\.1\.1-rc\.2-linux/)
+  assert.doesNotMatch(updated, /dsh-0\.1\.0-rc\.8/)
 })
 
 test('the upstream record omits an unresolved commit instead of inventing one', () => {
