@@ -93,6 +93,7 @@ export function buildDshArgs(entry, {
     entry,
     '--profile',
     'web',
+    '--no-open',
     ...(platform === 'win32' ? ['--patch', windowsPickerPatch] : []),
     '--host',
     '127.0.0.1',
