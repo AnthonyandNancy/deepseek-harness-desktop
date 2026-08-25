@@ -13,6 +13,7 @@ test('tray menu exposes show, hide, and quit actions', () => {
   const actions = []
   const menu = createTrayMenuTemplate({
     locale: 'zh-CN',
+    platform: 'darwin',
     showWindow: () => actions.push('show'),
     hideWindow: () => actions.push('hide'),
     quit: () => actions.push('quit'),
@@ -31,11 +32,48 @@ test('tray menu exposes show, hide, and quit actions', () => {
   assert.deepEqual(actions, ['show', 'hide', 'quit'])
 })
 
+test('tray menu adds a restart action on Windows only', () => {
+  const actions = []
+  const menu = createTrayMenuTemplate({
+    locale: 'zh-CN',
+    platform: 'win32',
+    showWindow: () => actions.push('show'),
+    hideWindow: () => actions.push('hide'),
+    restart: () => actions.push('restart'),
+    quit: () => actions.push('quit'),
+  })
+
+  assert.deepEqual(menu.map(({ label, type }) => label ?? type), [
+    '打开 DeepSeek Harness',
+    '隐藏窗口',
+    'separator',
+    '重启应用',
+    '退出',
+  ])
+
+  menu[3].click()
+  menu[4].click()
+  assert.deepEqual(actions, ['restart', 'quit'])
+
+  for (const platform of ['darwin', 'linux']) {
+    const other = createTrayMenuTemplate({
+      platform,
+      showWindow() {},
+      hideWindow() {},
+      restart() {},
+      quit() {},
+    })
+    assert.equal(other.some(({ label }) => label === 'Restart App'), false)
+  }
+})
+
 test('tray menu falls back to English labels', () => {
   const menu = createTrayMenuTemplate({
     locale: 'en-US',
+    platform: 'win32',
     showWindow() {},
     hideWindow() {},
+    restart() {},
     quit() {},
   })
 
@@ -43,6 +81,7 @@ test('tray menu falls back to English labels', () => {
     'Open DeepSeek Harness',
     'Hide Window',
     'separator',
+    'Restart App',
     'Quit',
   ])
 })

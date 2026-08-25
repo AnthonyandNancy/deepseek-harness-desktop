@@ -1,5 +1,4 @@
 import { cpSync, mkdtempSync, rmSync } from 'node:fs'
-import { once } from 'node:events'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -171,10 +170,7 @@ try {
   }
   console.log(`packaged smoke: ${response.status} ${url}`)
 } finally {
-  service.stop()
-  if (service.child.exitCode === null) {
-    await once(service.child, 'exit')
-  }
+  await service.stop()
   if (temporaryRoot !== undefined) {
     try {
       rmSync(temporaryRoot, {

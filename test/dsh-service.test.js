@@ -1,16 +1,50 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import path from 'node:path'
+import { EventEmitter } from 'node:events'
 import {
   buildDshCommand,
   buildDshArgs,
   extractReadyUrl,
+  hasExited,
   resolveDshEntry,
   resolveWindowsHiddenConsoleLauncher,
   resolveWindowsNodeExecutable,
   resolveWindowsPickerPatch,
+  signalProcessTree,
+  stopProcessTree,
   unpackedPath,
 } from '../src/dsh-service.js'
+
+function createFakeChild({ pid = 4321, exitOn } = {}) {
+  const child = new EventEmitter()
+  child.pid = pid
+  child.exitCode = null
+  child.signalCode = null
+  child.signals = []
+  child.kill = (signal) => {
+    child.signals.push({ target: pid, signal })
+    child.emit('signalled', signal)
+    return true
+  }
+  child.settle = (signal) => {
+    child.signalCode = signal
+    child.emit('exit', null, signal)
+  }
+  if (exitOn) {
+    child.on('signalled', (signal) => {
+      if (signal === exitOn) setImmediate(() => child.settle(signal))
+    })
+  }
+  return child
+}
+
+function groupKillInto(child) {
+  return (target, signal) => {
+    child.signals.push({ target, signal })
+    child.emit('signalled', signal)
+  }
+}
 
 test('extractReadyUrl reads the canonical loopback readiness URL', () => {
   assert.equal(
@@ -127,4 +161,73 @@ test('resolveWindowsNodeExecutable points to the packaged console-subsystem Node
     resolveWindowsNodeExecutable().endsWith(path.join('assets', 'dsh-node.exe')),
     true,
   )
+})
+
+test('signalProcessTree signals the process group on POSIX', () => {
+  const child = createFakeChild()
+  assert.equal(
+    signalProcessTree(child, 'SIGTERM', { platform: 'linux', kill: groupKillInto(child) }),
+    true,
+  )
+  assert.deepEqual(child.signals, [{ target: -4321, signal: 'SIGTERM' }])
+})
+
+test('signalProcessTree signals the launcher directly on Windows', () => {
+  const child = createFakeChild()
+  assert.equal(signalProcessTree(child, 'SIGTERM', { platform: 'win32' }), true)
+  assert.deepEqual(child.signals, [{ target: 4321, signal: 'SIGTERM' }])
+})
+
+test('signalProcessTree ignores an already exited service', () => {
+  const child = createFakeChild()
+  child.exitCode = 0
+  assert.equal(hasExited(child), true)
+  assert.equal(signalProcessTree(child, 'SIGTERM', { platform: 'win32' }), false)
+  assert.deepEqual(child.signals, [])
+})
+
+test('stopProcessTree resolves once the service exits on SIGTERM', async () => {
+  const child = createFakeChild({ exitOn: 'SIGTERM' })
+  assert.equal(await stopProcessTree({ child, platform: 'win32', graceMs: 1_000 }), true)
+  assert.deepEqual(child.signals, [{ target: 4321, signal: 'SIGTERM' }])
+})
+
+test('stopProcessTree escalates to SIGKILL when SIGTERM is ignored', async () => {
+  const child = createFakeChild({ exitOn: 'SIGKILL' })
+  assert.equal(
+    await stopProcessTree({
+      child,
+      platform: 'linux',
+      graceMs: 50,
+      kill: groupKillInto(child),
+    }),
+    true,
+  )
+  assert.deepEqual(child.signals, [
+    { target: -4321, signal: 'SIGTERM' },
+    { target: -4321, signal: 'SIGKILL' },
+  ])
+})
+
+test('stopProcessTree warns but never hangs when the tree survives', async () => {
+  const child = createFakeChild()
+  const warnings = []
+  assert.equal(
+    await stopProcessTree({
+      child,
+      platform: 'win32',
+      graceMs: 20,
+      warn: (message) => warnings.push(message),
+    }),
+    false,
+  )
+  assert.equal(warnings.length, 1)
+  assert.match(warnings[0], /did not terminate within 40ms/)
+})
+
+test('stopProcessTree is a no-op for an already exited service', async () => {
+  const child = createFakeChild()
+  child.exitCode = 0
+  assert.equal(await stopProcessTree({ child, platform: 'win32', graceMs: 20 }), true)
+  assert.deepEqual(child.signals, [])
 })

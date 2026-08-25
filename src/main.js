@@ -25,6 +25,8 @@ let serviceUrl
 let tray
 let trayAvailable = false
 let isQuitting = false
+let shouldRelaunch = false
+let shutdown
 
 app.setName(APP_NAME)
 
@@ -78,6 +80,12 @@ function createWindow() {
   return mainWindow.loadFile(STARTUP_PAGE)
 }
 
+function quitApp({ relaunch = false } = {}) {
+  shouldRelaunch = relaunch
+  isQuitting = true
+  app.quit()
+}
+
 function createTray() {
   const trayIcon = nativeImage.createFromPath(
     process.platform === 'darwin' ? TRAY_TEMPLATE_ICON : TRAY_ICON,
@@ -87,12 +95,11 @@ function createTray() {
   tray.setToolTip(APP_NAME)
   tray.setContextMenu(Menu.buildFromTemplate(createTrayMenuTemplate({
     locale: app.getLocale(),
+    platform: process.platform,
     showWindow: () => void showMainWindow(),
     hideWindow: () => mainWindow?.hide(),
-    quit: () => {
-      isQuitting = true
-      app.quit()
-    },
+    restart: () => quitApp({ relaunch: true }),
+    quit: () => quitApp(),
   })))
   tray.on('click', () => void showMainWindow())
   trayAvailable = true
@@ -151,7 +158,14 @@ app.on('window-all-closed', () => {
   if (isQuitting || (!trayAvailable && process.platform !== 'darwin')) app.quit()
 })
 
-app.on('before-quit', () => {
+app.on('before-quit', (event) => {
   isQuitting = true
-  service?.stop()
+  // Electron never awaits this handler, so hold every quit attempt and leave
+  // through app.exit() instead — it does not re-enter before-quit.
+  event.preventDefault()
+  shutdown ??= (async () => {
+    await service?.stop()
+    if (shouldRelaunch) app.relaunch()
+    app.exit(0)
+  })()
 })

@@ -33,7 +33,7 @@ DeepSeek Harness Desktop packages the official DeepSeek Harness Web experience a
 This project focuses on desktop hosting. It does not fork, modify, inject into, or reimplement the Harness UI. Models, sessions, settings, plugins, and agent capabilities remain provided by the official `@deepseek-ai/dsh` package.
 
 > [!IMPORTANT]
-> This is an unofficial community wrapper and an early-stage project. It depends on the rapidly evolving `@deepseek-ai/dsh@0.1.0-rc.8`. The macOS builds are not Apple-notarized, and the Windows builds are not commercially code-signed.
+> This is an unofficial community wrapper and an early-stage project. It depends on the rapidly evolving `@deepseek-ai/dsh@0.1.1-rc.2`. The macOS builds are not Apple-notarized, and the Windows builds are not commercially code-signed.
 
 ## Download
 
@@ -64,8 +64,9 @@ DeepSeek Harness already provides the complete agent runtime and Web UI. This pr
 - Opens the official Harness interface as soon as the local service is ready
 - Shows a lightweight loading screen while the local Harness service starts
 - Keeps running in the system tray when the main window is closed
+- Offers a Restart App tray action on Windows that first ends every running Harness process
 - Preserves the complete settings, models, sessions, plugins, and agent experience
-- Gracefully terminates the Harness child process on application exit
+- Waits for the Harness process tree to terminate on exit and restart, leaving nothing behind
 - Listens only on a random local loopback port
 - Supports macOS on Apple Silicon and Intel
 - Blends the macOS title bar with the active DSH light or dark theme
@@ -149,7 +150,7 @@ Every release package is built on a matching GitHub-hosted runner and runs a pac
 
 ## Upstream version and license
 
-The project currently pins `@deepseek-ai/dsh@0.1.0-rc.8` for reproducible packaging. [`config/dsh-upstream.json`](config/dsh-upstream.json) records the upstream release tag and commit that npm version was built from, and `npm run dsh:check` reports whether a newer DeepSeek Harness release is available.
+The project currently pins `@deepseek-ai/dsh@0.1.1-rc.2` for reproducible packaging. [`config/dsh-upstream.json`](config/dsh-upstream.json) records the upstream release tag and commit that npm version was built from, and `npm run dsh:check` reports whether a newer DeepSeek Harness release is available.
 
 The desktop wrapper is available under the [MIT License](LICENSE). The bundled DeepSeek Harness package is also MIT-licensed; its notice is preserved in [`third-party-licenses/deepseek-harness-LICENSE`](third-party-licenses/deepseek-harness-LICENSE).
 

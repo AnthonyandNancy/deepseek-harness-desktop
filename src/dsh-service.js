@@ -3,6 +3,63 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const READY_PATTERN = /^dsh web: (http:\/\/127\.0\.0\.1:\d+)\b/m
 
+/** Measured teardown of the dsh tree takes milliseconds; this leaves ample headroom. */
+export const TERMINATION_GRACE_MS = 3_000
+
+export function hasExited(child) {
+  return child.exitCode !== null || child.signalCode !== null
+}
+
+// On POSIX the service leads its own process group, so a negative pid signals
+// every descendant. Windows has no equivalent: the hidden-console launcher owns
+// a KILL_ON_JOB_CLOSE job object, so terminating the launcher reaps the tree.
+export function signalProcessTree(child, signal, {
+  platform = process.platform,
+  kill = process.kill,
+} = {}) {
+  if (hasExited(child)) return false
+  try {
+    if (platform === 'win32') child.kill(signal)
+    else kill(-child.pid, signal)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function settlesWithin(promise, ms) {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(false), ms)
+    void promise.then(() => {
+      clearTimeout(timer)
+      resolve(true)
+    })
+  })
+}
+
+// Escalates SIGTERM to SIGKILL but always resolves: a shutdown path that can
+// hang is worse than one that leaks a warning.
+export async function stopProcessTree({
+  child,
+  platform = process.platform,
+  graceMs = TERMINATION_GRACE_MS,
+  kill = process.kill,
+  warn = console.warn,
+}) {
+  if (hasExited(child)) return true
+
+  const exited = new Promise((resolve) => child.once('exit', resolve))
+
+  signalProcessTree(child, 'SIGTERM', { platform, kill })
+  if (await settlesWithin(exited, graceMs)) return true
+
+  signalProcessTree(child, 'SIGKILL', { platform, kill })
+  if (await settlesWithin(exited, graceMs)) return true
+
+  warn(`DeepSeek Harness did not terminate within ${graceMs * 2}ms; continuing shutdown.`)
+  return false
+}
+
 export function resolveDshEntry() {
   return unpackedPath(fileURLToPath(import.meta.resolve('@deepseek-ai/dsh/lib/bin.js')))
 }
@@ -84,6 +141,10 @@ export function startDshService({
       ...(platform === 'win32' ? {} : { ELECTRON_RUN_AS_NODE: '1' }),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
+    // Leads its own process group so shutdown can signal the whole tree. On
+    // Windows this would detach the process from the launcher's job object,
+    // which is what reaps the tree there.
+    detached: platform !== 'win32',
   })
 
   let output = ''
@@ -114,15 +175,15 @@ export function startDshService({
     })
 
     const timeout = setTimeout(() => {
-      child.kill('SIGTERM')
+      signalProcessTree(child, 'SIGTERM', { platform })
       finish(reject, new Error(`DeepSeek Harness did not become ready within ${timeoutMs}ms.\n${output}`))
     }, timeoutMs)
   })
 
+  let stopping
   const stop = () => {
-    if (!child.killed && child.exitCode === null) {
-      child.kill('SIGTERM')
-    }
+    stopping ??= stopProcessTree({ child, platform })
+    return stopping
   }
 
   return { child, ready, stop }

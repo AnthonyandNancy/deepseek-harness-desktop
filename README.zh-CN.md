@@ -33,7 +33,7 @@ DeepSeek Harness Desktop 将官方 DeepSeek Harness Web 体验封装为独立桌
 本项目专注于桌面宿主能力，不 fork、不修改、不注入，也不重新实现 Harness UI。模型、会话、设置、插件和 Agent 能力均由官方 `@deepseek-ai/dsh` 提供。
 
 > [!IMPORTANT]
-> 本项目是非官方社区封装，目前仍属于早期版本，并依赖快速演进中的 `@deepseek-ai/dsh@0.1.0-rc.8`。macOS 构建尚未经过 Apple 公证，Windows 构建尚未进行商业代码签名。
+> 本项目是非官方社区封装，目前仍属于早期版本，并依赖快速演进中的 `@deepseek-ai/dsh@0.1.1-rc.2`。macOS 构建尚未经过 Apple 公证，Windows 构建尚未进行商业代码签名。
 
 ## 下载
 
@@ -64,8 +64,9 @@ DeepSeek Harness 已经提供完整的 Agent Runtime 和 Web UI。本项目不�
 - Harness 就绪后直接进入官方界面，无额外操作步骤
 - 启动 Harness 服务时显示轻量等待界面，不再出现无响应感
 - 支持系统托盘驻留，关闭主窗口后可继续在后台运行
+- Windows 托盘菜单提供「重启应用」，重启前先结束当前所有 Harness 进程
 - 保留完整的设置、模型、会话、插件和 Agent 能力
-- 应用退出时自动终止 Harness 子进程
+- 退出与重启时等待 Harness 进程树完全终止，不留残余进程
 - Web 服务仅监听随机本地回环端口，不暴露到局域网
 - macOS 支持 Apple Silicon 和 Intel
 - macOS 标题栏会与 DSH 当前浅色或深色主题自然融合
@@ -149,7 +150,7 @@ DeepSeek Harness Desktop
 
 ## 上游版本与许可
 
-当前固定使用 `@deepseek-ai/dsh@0.1.0-rc.8`，以保证打包结果可复现。[`config/dsh-upstream.json`](config/dsh-upstream.json) 记录该 npm 版本对应的上游 release tag 与 commit，`npm run dsh:check` 可检查官方是否发布了更新版本。
+当前固定使用 `@deepseek-ai/dsh@0.1.1-rc.2`，以保证打包结果可复现。[`config/dsh-upstream.json`](config/dsh-upstream.json) 记录该 npm 版本对应的上游 release tag 与 commit，`npm run dsh:check` 可检查官方是否发布了更新版本。
 
 桌面封装采用 [MIT License](LICENSE)。内置的 DeepSeek Harness 同样采用 MIT License，其许可声明保存在 [`third-party-licenses/deepseek-harness-LICENSE`](third-party-licenses/deepseek-harness-LICENSE)。
 

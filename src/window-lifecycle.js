@@ -4,8 +4,10 @@ export function shouldHideWindowOnClose(isQuitting, hasTray = true) {
 
 export function createTrayMenuTemplate({
   locale = 'en',
+  platform = process.platform,
   showWindow,
   hideWindow,
+  restart,
   quit,
 }) {
   const isChinese = locale.toLowerCase().startsWith('zh')
@@ -20,6 +22,12 @@ export function createTrayMenuTemplate({
       click: hideWindow,
     },
     { type: 'separator' },
+    ...(platform === 'win32'
+      ? [{
+        label: isChinese ? '重启应用' : 'Restart App',
+        click: restart,
+      }]
+      : []),
     {
       label: isChinese ? '退出' : 'Quit',
       click: quit,
