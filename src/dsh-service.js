@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
-const READY_PATTERN = /^dsh web: (http:\/\/127\.0\.0\.1:\d+)\b/m
+const READY_PATTERN = /^dsh web: (http:\/\/127\.0\.0\.1:\d+(?:\/[^\s]*)?)(?=\s|$)/m
 
 /** Measured teardown of the dsh tree takes milliseconds; this leaves ample headroom. */
 export const TERMINATION_GRACE_MS = 3_000
