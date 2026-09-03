@@ -3,11 +3,11 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const apiProxyPath = path.join(
+const nativeCommandPath = path.join(
   root,
   'node_modules',
   '@deepseek-ai',
-  'dsh-host-apiproxy',
+  'dsh-native-command',
   'lib',
   'index.js',
 )
@@ -49,7 +49,7 @@ export function patchWindowsPathOpener(source) {
   return source.replace(ORIGINAL_WINDOWS_OPENER, PATCHED_WINDOWS_OPENER)
 }
 
-export function prepareApiProxy(target = apiProxyPath) {
+export function prepareApiProxy(target = nativeCommandPath) {
   const source = readFileSync(target, 'utf8')
   const patched = patchWindowsPathOpener(source)
   if (patched !== source) writeFileSync(target, patched)

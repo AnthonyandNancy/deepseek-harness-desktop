@@ -155,12 +155,30 @@ const service = startDshService({
   },
 })
 
-try {
-  const url = await service.ready
-  const response = await fetch(url)
+async function fetchAuthenticatedIndex(url) {
+  const bootstrap = await fetch(url, { redirect: 'manual' })
+  if (bootstrap.status < 300 || bootstrap.status >= 400) {
+    throw new Error(`Packaged DeepSeek Harness authentication bootstrap returned HTTP ${bootstrap.status}`)
+  }
+
+  const location = bootstrap.headers.get('location')
+  if (!location) throw new Error('Packaged DeepSeek Harness authentication bootstrap omitted Location')
+
+  const setCookies = bootstrap.headers.getSetCookie?.() ?? [bootstrap.headers.get('set-cookie')].filter(Boolean)
+  if (setCookies.length === 0) throw new Error('Packaged DeepSeek Harness authentication bootstrap omitted Set-Cookie')
+  const cookie = setCookies.map((value) => value.split(';', 1)[0]).join('; ')
+  const response = await fetch(new URL(location, url), {
+    headers: { Cookie: cookie },
+  })
   if (!response.ok) {
     throw new Error(`Packaged DeepSeek Harness returned HTTP ${response.status}`)
   }
+  return response
+}
+
+try {
+  const url = await service.ready
+  const response = await fetchAuthenticatedIndex(url)
   const html = await response.text()
   if (!html.includes('__DSH_BOOT__')) {
     throw new Error('Packaged DeepSeek Harness did not return its Web UI')

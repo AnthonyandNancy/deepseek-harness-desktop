@@ -33,7 +33,7 @@ DeepSeek Harness Desktop 将官方 DeepSeek Harness Web 体验封装为独立桌
 本项目专注于桌面宿主能力，不 fork、不修改、不注入，也不重新实现 Harness UI。模型、会话、设置、插件和 Agent 能力均由官方 `@deepseek-ai/dsh` 提供。
 
 > [!IMPORTANT]
-> 本项目是非官方社区封装，目前仍属于早期版本，并依赖快速演进中的 `@deepseek-ai/dsh@0.1.1-rc.2`。macOS 构建尚未经过 Apple 公证，Windows 构建尚未进行商业代码签名。
+> 本项目是非官方社区封装，目前仍属于早期版本，并依赖快速演进中的 `@deepseek-ai/dsh@0.1.2-rc.1`。macOS 构建尚未经过 Apple 公证，Windows 构建尚未进行商业代码签名。
 
 ## 下载
 
@@ -162,7 +162,7 @@ DeepSeek Harness Desktop
 
 ## 上游版本与许可
 
-当前固定使用 `@deepseek-ai/dsh@0.1.1-rc.2`，以保证打包结果可复现。[`config/dsh-upstream.json`](config/dsh-upstream.json) 记录该 npm 版本对应的上游 release tag 与 commit，`npm run dsh:check` 可检查官方是否发布了更新版本。
+当前固定使用 `@deepseek-ai/dsh@0.1.2-rc.1`，以保证打包结果可复现。[`config/dsh-upstream.json`](config/dsh-upstream.json) 记录该 npm 版本对应的上游 release tag 与 commit，`npm run dsh:check` 可检查官方是否发布了更新版本。
 
 桌面封装采用 [MIT License](LICENSE)。内置的 DeepSeek Harness 同样采用 MIT License，其许可声明保存在 [`third-party-licenses/deepseek-harness-LICENSE`](third-party-licenses/deepseek-harness-LICENSE)。
 

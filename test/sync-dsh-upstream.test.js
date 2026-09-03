@@ -21,6 +21,25 @@ test('every DeepSeek Harness dependency is pinned to one exact release line', ()
   assert.equal(assertSingleReleaseLine(dependencies), upstream.version)
 })
 
+test('the DSH runtime peer closure is declared directly for packaging', () => {
+  const peerClosure = [
+    '@deepseek-ai/dsh-attachment',
+    '@deepseek-ai/dsh-authorization',
+    '@deepseek-ai/dsh-hook-protocol',
+    '@deepseek-ai/dsh-jobs',
+    '@deepseek-ai/dsh-sdk-protocol',
+    '@deepseek-ai/dsh-session-persistence',
+    '@deepseek-ai/dsh-session-query',
+    '@deepseek-ai/dsh-settings',
+    '@deepseek-ai/dsh-util-time',
+    '@deepseek-ai/dsh-util-workspace-path',
+  ]
+
+  for (const packageName of peerClosure) {
+    assert.equal(manifest.dependencies[packageName], upstream.version, packageName)
+  }
+})
+
 test('the recorded upstream version matches the pinned runtime package', () => {
   assert.equal(manifest.dependencies['@deepseek-ai/dsh'], upstream.version)
   assert.equal(upstream.tag, `dsh-v${upstream.version}`)
