@@ -33,7 +33,7 @@ DeepSeek Harness Desktop packages the official DeepSeek Harness Web experience a
 This project focuses on desktop hosting. It does not fork, modify, inject into, or reimplement the Harness UI. Models, sessions, settings, plugins, and agent capabilities remain provided by the official `@deepseek-ai/dsh` package.
 
 > [!IMPORTANT]
-> This is an unofficial community wrapper and an early-stage project. It depends on the rapidly evolving `@deepseek-ai/dsh@0.1.1-rc.2`. The macOS builds are not Apple-notarized, and the Windows builds are not commercially code-signed.
+> This is an unofficial community wrapper and an early-stage project. It depends on the rapidly evolving `@deepseek-ai/dsh@0.1.2-rc.1`. The macOS builds are not Apple-notarized, and the Windows builds are not commercially code-signed.
 
 ## Download
 
@@ -150,7 +150,7 @@ Every release package is built on a matching GitHub-hosted runner and runs a pac
 
 ## Upstream version and license
 
-The project currently pins `@deepseek-ai/dsh@0.1.1-rc.2` for reproducible packaging. [`config/dsh-upstream.json`](config/dsh-upstream.json) records the upstream release tag and commit that npm version was built from, and `npm run dsh:check` reports whether a newer DeepSeek Harness release is available.
+The project currently pins `@deepseek-ai/dsh@0.1.2-rc.1` for reproducible packaging. [`config/dsh-upstream.json`](config/dsh-upstream.json) records the upstream release tag and commit that npm version was built from, and `npm run dsh:check` reports whether a newer DeepSeek Harness release is available.
 
 The desktop wrapper is available under the [MIT License](LICENSE). The bundled DeepSeek Harness package is also MIT-licensed; its notice is preserved in [`third-party-licenses/deepseek-harness-LICENSE`](third-party-licenses/deepseek-harness-LICENSE).
 
