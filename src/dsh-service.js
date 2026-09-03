@@ -6,6 +6,24 @@ const READY_PATTERN = /^dsh web: (http:\/\/127\.0\.0\.1:\d+)\b/m
 /** Measured teardown of the dsh tree takes milliseconds; this leaves ample headroom. */
 export const TERMINATION_GRACE_MS = 3_000
 
+// A JS/native version gap inside the packaged node_modules means the install
+// mixes two app builds. In-place upgrades cannot overwrite the native binaries
+// of a running app, so the installer silently skips them and the mismatch only
+// shows up on the next boot. Surface a fix instead of the raw loader stack.
+export function nativeMismatchGuidance(output) {
+  if (!/(Mismatched native Koffi modules|Could not load the sharp module)/.test(output)) return ''
+  return [
+    'This install mixes native modules from two app versions, usually because an',
+    'upgrade ran while the app was still open. Quit the app from the tray,',
+    'uninstall it, then install the latest release again.',
+  ].join(' ')
+}
+
+function describeStartupFailure(reason, output) {
+  const guidance = nativeMismatchGuidance(output)
+  return `${reason}\n${guidance ? `${guidance}\n\n` : ''}${output}`
+}
+
 export function hasExited(child) {
   return child.exitCode !== null || child.signalCode !== null
 }
@@ -174,13 +192,22 @@ export function startDshService({
     child.once('exit', (code, signal) => {
       finish(
         reject,
-        new Error(`DeepSeek Harness stopped before it was ready (code ${String(code)}, signal ${String(signal)}).\n${output}`),
+        new Error(describeStartupFailure(
+          `DeepSeek Harness stopped before it was ready (code ${String(code)}, signal ${String(signal)}).`,
+          output,
+        )),
       )
     })
 
     const timeout = setTimeout(() => {
       signalProcessTree(child, 'SIGTERM', { platform })
-      finish(reject, new Error(`DeepSeek Harness did not become ready within ${timeoutMs}ms.\n${output}`))
+      finish(
+        reject,
+        new Error(describeStartupFailure(
+          `DeepSeek Harness did not become ready within ${timeoutMs}ms.`,
+          output,
+        )),
+      )
     }, timeoutMs)
   })
 

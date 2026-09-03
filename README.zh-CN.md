@@ -148,6 +148,18 @@ DeepSeek Harness Desktop
 - 尚未提供 Windows ARM64 和 Linux ARM64 构建
 - 尚未集成自动更新
 
+## 疑难排查
+
+### 升级后启动失败，报错 "Mismatched native Koffi modules"
+
+这说明安装目录里混入了两个不同版本的文件：旧版应用运行期间被占用的原生二进制无法被覆盖，安装器会静默跳过它们，于是新版 JavaScript 代码旁残留了旧版 `koffi.node`(或其它原生模块)。
+
+1. 完全退出应用，包括托盘图标。
+2. 卸载 DeepSeek Harness；若卸载器留有残留目录，手动删除。
+3. 重新安装最新版本，或改用便携 ZIP 包替换应用目录。
+
+升级前请先从托盘退出应用。NSIS 升级是在旧安装之上叠加文件，不会清理旧版本残留。
+
 ## 上游版本与许可
 
 当前固定使用 `@deepseek-ai/dsh@0.1.1-rc.2`，以保证打包结果可复现。[`config/dsh-upstream.json`](config/dsh-upstream.json) 记录该 npm 版本对应的上游 release tag 与 commit，`npm run dsh:check` 可检查官方是否发布了更新版本。

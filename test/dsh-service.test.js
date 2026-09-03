@@ -7,6 +7,7 @@ import {
   buildDshArgs,
   extractReadyUrl,
   hasExited,
+  nativeMismatchGuidance,
   resolveDshEntry,
   resolveWindowsHiddenConsoleLauncher,
   resolveWindowsNodeExecutable,
@@ -55,6 +56,23 @@ test('extractReadyUrl reads the canonical loopback readiness URL', () => {
 
 test('extractReadyUrl ignores non-loopback output', () => {
   assert.equal(extractReadyUrl('dsh web: http://192.168.1.10:3080'), undefined)
+})
+
+test('nativeMismatchGuidance stays empty for ordinary startup failures', () => {
+  assert.equal(nativeMismatchGuidance('dsh: plugin tree failed to load: cannot import ./plugins'), '')
+  assert.equal(nativeMismatchGuidance(''), '')
+})
+
+test('nativeMismatchGuidance explains mixed-version native modules', () => {
+  const guidance = nativeMismatchGuidance(
+    'Error: failed to import loader entry subprocess: Mismatched native Koffi modules\n    at wrapNative',
+  )
+  assert.match(guidance, /two app versions/)
+  assert.match(guidance, /Quit the app from the tray/)
+})
+
+test('nativeMismatchGuidance covers sharp prebuilt failures too', () => {
+  assert.match(nativeMismatchGuidance('Could not load the sharp module'), /two app versions/)
 })
 
 test('resolveDshEntry finds the pinned CLI package', () => {

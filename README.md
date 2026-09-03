@@ -148,6 +148,24 @@ Every release package is built on a matching GitHub-hosted runner and runs a pac
 - Windows ARM64 and Linux ARM64 packages are not currently provided
 - Automatic updates are not integrated
 
+## Troubleshooting
+
+### The app fails to start with "Mismatched native Koffi modules" after an upgrade
+
+This means the installed copy mixes files from two different versions: the
+native binaries that were loaded while the old app was still running could not
+be overwritten, so the installer silently skipped them and left a stale
+`koffi.node` (or another native module) next to the newer JavaScript code.
+
+1. Quit the app completely, including the tray icon.
+2. Uninstall DeepSeek Harness and delete the remaining installation directory if
+   the uninstaller leaves one behind.
+3. Install the latest release again, or replace the app folder with the
+   portable ZIP distribution.
+
+To avoid this, quit the app from the tray before installing an upgrade. NSIS
+upgrades overlay the previous installation and do not clean up leftover files.
+
 ## Upstream version and license
 
 The project currently pins `@deepseek-ai/dsh@0.1.1-rc.2` for reproducible packaging. [`config/dsh-upstream.json`](config/dsh-upstream.json) records the upstream release tag and commit that npm version was built from, and `npm run dsh:check` reports whether a newer DeepSeek Harness release is available.
