@@ -14,39 +14,21 @@ const nativeCommandPath = path.join(
 const windowsNodePath = path.join(root, 'assets', 'dsh-node.exe')
 const nodeLicensePath = path.join(root, 'third-party-licenses', 'nodejs-LICENSE')
 
-const ORIGINAL_WINDOWS_OPENER = `async function openWindowsPath(path, signal, run) {
-\tawait run("powershell.exe", [
-\t\t"-NoProfile",
-\t\t"-Command",
-\t\t\`Invoke-Item -LiteralPath \${powershellLiteral(path)}\`
-\t], signal);
-}`
-
-const PATCHED_WINDOWS_OPENER = `async function openWindowsPath(path, signal, run) {
-\tconst command = \`Invoke-Item -LiteralPath \${powershellLiteral(path)}\`;
-\tconst encodedCommand = Buffer.from(command, "utf16le").toString("base64");
-\tawait run("powershell.exe", [
-\t\t"-NoLogo",
-\t\t"-NoProfile",
-\t\t"-NonInteractive",
-\t\t"-EncodedCommand",
-\t\tencodedCommand
-\t], signal);
-}`
-
-export function encodeWindowsOpenCommand(targetPath) {
-  const literal = `'${targetPath.replaceAll("'", "''")}'`
-  const command = `Invoke-Item -LiteralPath ${literal}`
-  return Buffer.from(command, 'utf16le').toString('base64')
-}
+/**
+ * Upstream 0.1.7 turned `openWindowsPath` into an `explorer.exe <file-uri>`
+ * invocation, which removes the console flash the PowerShell encoding patch
+ * existed to prevent. This project pins exactly one Harness release line, so the
+ * old PowerShell branch is not carried: Explorer means no work, anything else
+ * fails loudly for a human to review against the new release.
+ */
+const EXPLORER_WINDOWS_OPENER = /runExplorer\(\[explorerTarget\(path\)\]/
 
 export function patchWindowsPathOpener(source) {
-  if (source.includes(PATCHED_WINDOWS_OPENER)) return source
-  const matches = source.split(ORIGINAL_WINDOWS_OPENER).length - 1
-  if (matches !== 1) {
-    throw new Error(`Expected exactly one DeepSeek Harness Windows path opener, found ${matches}`)
-  }
-  return source.replace(ORIGINAL_WINDOWS_OPENER, PATCHED_WINDOWS_OPENER)
+  if (EXPLORER_WINDOWS_OPENER.test(source)) return source
+  throw new Error(
+    'Could not find the DeepSeek Harness Windows path opener; review '
+    + 'scripts/prepare-dependencies.mjs against the new upstream release before packaging.',
+  )
 }
 
 export function prepareApiProxy(target = nativeCommandPath) {

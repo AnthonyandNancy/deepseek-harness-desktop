@@ -1,50 +1,37 @@
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import test from 'node:test'
-import {
-  encodeWindowsOpenCommand,
-  patchWindowsPathOpener,
-  prepareApiProxy,
-} from '../scripts/prepare-dependencies.mjs'
+import { patchWindowsPathOpener, prepareApiProxy } from '../scripts/prepare-dependencies.mjs'
 
-const ORIGINAL = `async function openWindowsPath(path, signal, run) {
-\tawait run("powershell.exe", [
-\t\t"-NoProfile",
-\t\t"-Command",
-\t\t\`Invoke-Item -LiteralPath \${powershellLiteral(path)}\`
-\t], signal);
-}`
+// Upstream 0.1.7 replaced the PowerShell `Invoke-Item` call with
+// `explorer.exe <file-uri>`; Explorer is GUI-subsystem, so the console flash
+// this patch existed to prevent is gone.
+const EXPLORER_OPENER = `async function openWindowsPath(path, signal, run) {
+\tawait runExplorer([explorerTarget(path)], signal, run);
+}
+/** Translate a WSL path before handing it to the Windows desktop. */`
 
-test('default dependency patch targets the DSH native command package', () => {
+test('prepare is a no-op when upstream opens paths through Explorer', () => {
+  const source = `before\n${EXPLORER_OPENER}\nafter`
+  const patched = patchWindowsPathOpener(source)
+  assert.equal(patched, source, 'source was rewritten on an explorer.exe build')
+  assert.equal(patchWindowsPathOpener(patched), patched, 'the patch is not idempotent')
+})
+
+test('prepare fails loudly when the upstream opener is unknown', () => {
+  assert.throws(
+    () => patchWindowsPathOpener('async function openWindowsPath() {}'),
+    /Could not find the DeepSeek Harness Windows path opener/,
+  )
+})
+
+test('the installed DSH native command package needs no patch at 0.1.7', () => {
   const target = new URL('../node_modules/@deepseek-ai/dsh-native-command/lib/index.js', import.meta.url)
   const source = readFileSync(target, 'utf8')
   try {
     prepareApiProxy()
-    assert.match(readFileSync(target, 'utf8'), /Buffer\.from\(command, "utf16le"\)/)
+    assert.equal(readFileSync(target, 'utf8'), source, 'the installed file was rewritten')
   } finally {
     writeFileSync(target, source)
   }
-})
-
-test('Windows path opener uses a UTF-16LE encoded PowerShell command', () => {
-  const encoded = encodeWindowsOpenCommand("C:\\项目\\Steven's file.txt")
-  assert.equal(
-    Buffer.from(encoded, 'base64').toString('utf16le'),
-    "Invoke-Item -LiteralPath 'C:\\项目\\Steven''s file.txt'",
-  )
-})
-
-test('dependency patch replaces exactly the pinned Windows path opener', () => {
-  const patched = patchWindowsPathOpener(`before\n${ORIGINAL}\nafter`)
-  assert.match(patched, /Buffer\.from\(command, "utf16le"\)/)
-  assert.match(patched, /"-EncodedCommand"/)
-  assert.doesNotMatch(patched, /"-Command",/)
-  assert.equal(patchWindowsPathOpener(patched), patched)
-})
-
-test('dependency patch fails loudly when upstream implementation drifts', () => {
-  assert.throws(
-    () => patchWindowsPathOpener('async function openWindowsPath() {}'),
-    /Expected exactly one/,
-  )
 })
