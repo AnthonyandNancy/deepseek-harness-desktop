@@ -68,7 +68,7 @@ test('only the DeepSeek Harness family is collected', () => {
     dependencies: {
       '@deepseek-ai/dsh': '0.1.0-rc.7',
       '@deepseek-ai/dsh-fs': '0.1.0-rc.7',
-      '@deepseek-ai/cordis-plugin-group': '1.0.1',
+      '@deepseek-ai/schemastery': '3.18.4',
       electron: '43.4.0',
     },
   })

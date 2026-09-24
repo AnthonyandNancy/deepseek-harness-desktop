@@ -33,7 +33,7 @@ DeepSeek Harness Desktop packages the official DeepSeek Harness Web experience a
 This project focuses on desktop hosting. It does not fork, modify, inject into, or reimplement the Harness UI. Models, sessions, settings, plugins, and agent capabilities remain provided by the official `@deepseek-ai/dsh` package.
 
 > [!IMPORTANT]
-> This is an unofficial community wrapper and an early-stage project. It depends on the rapidly evolving `@deepseek-ai/dsh@0.1.5-rc.1`. The macOS builds are not Apple-notarized, and the Windows builds are not commercially code-signed.
+> This is an unofficial community wrapper and an early-stage project. It depends on the rapidly evolving `@deepseek-ai/dsh@0.1.7-rc.1`. Upstream also ships its own Electron desktop app (`apps/desktop` in the upstream monorepo); this project stays an independent community wrapper on the published `@deepseek-ai/dsh` npm packages and deliberately does not carry that code — see [the decision record](docs/plans/desktop-port-decision.md). The macOS builds are not Apple-notarized, and the Windows builds are not commercially code-signed.
 
 ## Download
 
@@ -168,7 +168,7 @@ upgrades overlay the previous installation and do not clean up leftover files.
 
 ## Upstream version and license
 
-The project currently pins `@deepseek-ai/dsh@0.1.5-rc.1` for reproducible packaging. [`config/dsh-upstream.json`](config/dsh-upstream.json) records the upstream release tag and commit that npm version was built from, and `npm run dsh:check` reports whether a newer DeepSeek Harness release is available.
+The project currently pins `@deepseek-ai/dsh@0.1.7-rc.1` for reproducible packaging. [`config/dsh-upstream.json`](config/dsh-upstream.json) records the upstream release tag and commit that npm version was built from, and `npm run dsh:check` reports whether a newer DeepSeek Harness release is available. This release lives on npm's `next` channel; `latest` still points at `0.1.5-rc.3`.
 
 The desktop wrapper is available under the [MIT License](LICENSE). The bundled DeepSeek Harness package is also MIT-licensed; its notice is preserved in [`third-party-licenses/deepseek-harness-LICENSE`](third-party-licenses/deepseek-harness-LICENSE).
 
