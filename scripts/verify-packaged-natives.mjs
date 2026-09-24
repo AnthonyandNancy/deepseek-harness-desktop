@@ -117,17 +117,51 @@ function verifyKoffiCopy(koffiDir, resourcesRoot) {
   }
 }
 
+// npm installs a package that only a peer edge requires — the lockfile records
+// that as `peer: true` — but electron-builder packs the closure it walks from the
+// app manifest's `dependencies`, so it drops that package. The gap is invisible
+// from the source tree, which is why it ships: the checkout boots and the product
+// does not. `dev: true` marks the build tooling (electron-builder's own
+// transitive peers) that legitimately never ships; everything else in this set is
+// a package the product must carry.
+function collectPeerOnlyRuntimePackages(lockfilePath = path.join(scriptRoot, 'package-lock.json')) {
+  let lockfile
+  try {
+    lockfile = JSON.parse(readFileSync(lockfilePath, 'utf8'))
+  } catch (error) {
+    notes.push(
+      `note could not read ${path.relative(scriptRoot, lockfilePath)} `
+      + `(${error.message}); reporting missing peers as notes only`,
+    )
+    return new Set()
+  }
+
+  const names = new Set()
+  for (const [key, entry] of Object.entries(lockfile.packages ?? {})) {
+    if (entry.peer !== true || entry.dev === true) continue
+    const name = entry.name ?? key.slice(key.lastIndexOf('node_modules/') + 'node_modules/'.length)
+    if (name.length > 0) names.add(name)
+  }
+  return names
+}
+
 // electron-builder collects the manifest dependency closure, but upstream
 // packages also import peers at runtime. `dsh-app-boot` imports
 // `@deepseek-ai/cordis-plugin-group`, which it declares only as a peer and which
 // nothing else requires as a dependency, so a manifest that does not pin it
 // produces an app that installs and boots from the source tree yet dies at
-// startup with ERR_MODULE_NOT_FOUND once packed. Resolve every declared
+// startup with ERR_MODULE_NOT_FOUND once packed.
+//
+// `@deepseek-ai/dsh-ptc-runtime` is the same shape of gap and reached a release:
+// `dsh-ptc-runtime-node` imports it from its first line, so the app shipped with
+// no `ptcRuntime` service, every agent preset that delegates workflows stayed
+// pending, and creating a session failed outright. Resolve every declared
 // dependency and peer from its own package the way Node would, so the gap fails
 // the build instead of the first launch.
 function verifyDeclaredDependenciesResolve(resourcesRoot) {
   const nodeModulesRoot = path.join(resourcesRoot, 'node_modules')
   const rootManifest = readPackage(resourcesRoot)
+  const peerOnlyPackages = collectPeerOnlyRuntimePackages()
 
   // Only the root manifest's dependency closure is what electron-builder packs.
   // Packages outside it are vendored example directories that happen to carry a
@@ -170,23 +204,29 @@ function verifyDeclaredDependenciesResolve(resourcesRoot) {
     }
   }
 
-  // A missing `dependencies` entry is a packaging defect: electron-builder copies
-  // the install closure, so a hole there ships a crash. A missing `peerDependencies`
-  // entry is a declaration upstream does not install and electron-builder prunes;
-  // that feature is equally broken in any pruned install, so report it instead of
-  // blocking the release. Both classes are listed either way.
-  for (const [name, entry] of closure) {
-    const record = (detail, fatal) => {
-      if (fatal) {
-        errors.push(`${detail}; pin it in package.json dependencies so electron-builder includes it`)
-      } else {
-        notes.push(`note ${detail} (upstream declares it as a peer but does not install it)`)
-      }
+  // A package the product is meant to carry is a release blocker when it cannot
+  // resolve. That is any real install edge, and also a peer edge whose package
+  // npm installed for this checkout — electron-builder prunes the latter, which
+  // is how a peer-only import becomes a shipped crash. A peer that nothing
+  // installs (bufferutil, utf-8-validate, @modelcontextprotocol/sdk) is upstream
+  // declaring an optional integration instead, so it stays a note. Both classes
+  // are listed either way.
+  const record = (detail, expected) => {
+    if (expected) {
+      errors.push(`${detail}; pin it in package.json dependencies so electron-builder includes it`)
+    } else {
+      notes.push(`note ${detail} (upstream declares it as a peer that nothing installs)`)
     }
+  }
 
-    // A package that is absent entirely is judged by the edge that required it.
+  for (const [name, entry] of closure) {
+    // A package that is absent entirely is judged by the edge that required it
+    // and by whether npm installed it for this checkout.
     if (entry.dir === undefined) {
-      record(`the packaged app is missing ${name}`, entry.kind === 'dependency')
+      record(
+        `the packaged app is missing ${name}`,
+        entry.kind === 'dependency' || peerOnlyPackages.has(name),
+      )
       continue
     }
 
@@ -201,7 +241,10 @@ function verifyDeclaredDependenciesResolve(resourcesRoot) {
         if (optional.has(dependency)) continue
         if (manifest.peerDependenciesMeta?.[dependency]?.optional === true) continue
         if (resolvePackageDir(entry.dir, dependency) !== undefined) continue
-        record(`${name}@${manifest.version ?? '?'} cannot resolve ${dependency} in the packaged app`, fatal)
+        record(
+          `${name}@${manifest.version ?? '?'} cannot resolve ${dependency} in the packaged app`,
+          fatal || peerOnlyPackages.has(dependency),
+        )
       }
     }
   }
