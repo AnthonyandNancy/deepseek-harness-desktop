@@ -117,6 +117,98 @@ function verifyKoffiCopy(koffiDir, resourcesRoot) {
   }
 }
 
+// electron-builder collects the manifest dependency closure, but upstream
+// packages also import peers at runtime. `dsh-app-boot` imports
+// `@deepseek-ai/cordis-plugin-group`, which it declares only as a peer and which
+// nothing else requires as a dependency, so a manifest that does not pin it
+// produces an app that installs and boots from the source tree yet dies at
+// startup with ERR_MODULE_NOT_FOUND once packed. Resolve every declared
+// dependency and peer from its own package the way Node would, so the gap fails
+// the build instead of the first launch.
+function verifyDeclaredDependenciesResolve(resourcesRoot) {
+  const nodeModulesRoot = path.join(resourcesRoot, 'node_modules')
+  const rootManifest = readPackage(resourcesRoot)
+
+  // Only the root manifest's dependency closure is what electron-builder packs.
+  // Packages outside it are vendored example directories that happen to carry a
+  // package.json (for example `fast-json-stable-stringify/benchmark`), and
+  // checking those produces noise rather than signal.
+  //
+  // The walk stops at the packaged app root. Ascending past it would resolve
+  // against this checkout's node_modules, which hides exactly the packaging gap
+  // this check exists to catch.
+  function resolvePackageDir(requesterDir, name) {
+    let dir = requesterDir
+    while (true) {
+      const candidate = path.join(dir, 'node_modules', name)
+      if (existsSync(path.join(candidate, 'package.json'))) return candidate
+      if (dir === resourcesRoot) return undefined
+      const parent = path.dirname(dir)
+      if (parent === dir) return undefined
+      dir = parent
+    }
+  }
+
+  const closure = new Map()
+  const queue = Object.keys(rootManifest.dependencies ?? {}).map((name) => ({ name, kind: 'dependency' }))
+  while (queue.length > 0) {
+    const { name, kind } = queue.shift()
+    const previous = closure.get(name)
+    if (previous !== undefined) {
+      // A real install edge outranks a peer edge for the same package.
+      if (previous.kind === 'dependency' || kind === 'peer') continue
+    }
+    const dir = resolvePackageDir(resourcesRoot, name)
+    closure.set(name, { kind, dir })
+    if (dir === undefined) continue
+    const manifest = readPackage(dir)
+    for (const dependency of Object.keys(manifest.dependencies ?? {})) {
+      queue.push({ name: dependency, kind: 'dependency' })
+    }
+    for (const dependency of Object.keys(manifest.peerDependencies ?? {})) {
+      queue.push({ name: dependency, kind: 'peer' })
+    }
+  }
+
+  // A missing `dependencies` entry is a packaging defect: electron-builder copies
+  // the install closure, so a hole there ships a crash. A missing `peerDependencies`
+  // entry is a declaration upstream does not install and electron-builder prunes;
+  // that feature is equally broken in any pruned install, so report it instead of
+  // blocking the release. Both classes are listed either way.
+  for (const [name, entry] of closure) {
+    const record = (detail, fatal) => {
+      if (fatal) {
+        errors.push(`${detail}; pin it in package.json dependencies so electron-builder includes it`)
+      } else {
+        notes.push(`note ${detail} (upstream declares it as a peer but does not install it)`)
+      }
+    }
+
+    // A package that is absent entirely is judged by the edge that required it.
+    if (entry.dir === undefined) {
+      record(`the packaged app is missing ${name}`, entry.kind === 'dependency')
+      continue
+    }
+
+    const manifest = readPackage(entry.dir)
+    const optional = new Set(Object.keys(manifest.optionalDependencies ?? {}))
+    const checks = [
+      { entries: manifest.dependencies ?? {}, fatal: true },
+      { entries: manifest.peerDependencies ?? {}, fatal: false },
+    ]
+    for (const { entries, fatal } of checks) {
+      for (const dependency of Object.keys(entries)) {
+        if (optional.has(dependency)) continue
+        if (manifest.peerDependenciesMeta?.[dependency]?.optional === true) continue
+        if (resolvePackageDir(entry.dir, dependency) !== undefined) continue
+        record(`${name}@${manifest.version ?? '?'} cannot resolve ${dependency} in the packaged app`, fatal)
+      }
+    }
+  }
+
+  report('ok', `resolved ${closure.size} packaged dependencies against their declared requirements`)
+}
+
 // sharp's prebuilt binaries encode their version in the file name, so stale
 // files from an older install are detectable without loading anything.
 function verifySharpPackages(resourcesRoot) {
@@ -160,6 +252,7 @@ if (koffiCopies.length === 0) {
 }
 for (const koffiDir of koffiCopies) verifyKoffiCopy(koffiDir, resourcesRoot)
 verifySharpPackages(resourcesRoot)
+verifyDeclaredDependenciesResolve(resourcesRoot)
 
 for (const note of notes) console.log(note)
 if (errors.length > 0) {
