@@ -24,25 +24,32 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Read the pinned and latest DeepSeek Harness versions
+      # The tracked channel comes from config/dsh-upstream.json. Prerelease
+      # lines live on `next`, and `latest` still points at the previous stable
+      # line, so a bare `npm view @deepseek-ai/dsh version` would propose a
+      # downgrade as soon as the pin moves ahead of it.
+      - name: Read the pinned version and the tracked channel
         id: versions
         run: |
           current=$(node -p "require('./package.json').dependencies['@deepseek-ai/dsh']")
-          latest=$(npm view @deepseek-ai/dsh version)
+          channel=$(node -p "require('./config/dsh-upstream.json').distTag ?? 'latest'")
+          target=$(npm view "@deepseek-ai/dsh@$channel" version)
           echo "current=$current" >> "$GITHUB_OUTPUT"
-          echo "latest=$latest" >> "$GITHUB_OUTPUT"
-          echo "Desktop pins $current; npm latest is $latest."
+          echo "channel=$channel" >> "$GITHUB_OUTPUT"
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+          echo "Desktop pins $current; npm $channel is $target."
 
       - name: Propose the dependency upgrade
-        if: steps.versions.outputs.current != steps.versions.outputs.latest
-        run: node scripts/sync-dsh-upstream.mjs --version '${{ steps.versions.outputs.latest }}'
+        if: steps.versions.outputs.current != steps.versions.outputs.target
+        run: node scripts/sync-dsh-upstream.mjs --version '${{ steps.versions.outputs.target }}'
 
       - name: Open the upgrade pull request
-        if: steps.versions.outputs.current != steps.versions.outputs.latest
+        if: steps.versions.outputs.current != steps.versions.outputs.target
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CURRENT: ${{ steps.versions.outputs.current }}
-          LATEST: ${{ steps.versions.outputs.latest }}
+          CHANNEL: ${{ steps.versions.outputs.channel }}
+          TARGET: ${{ steps.versions.outputs.target }}
         run: |
           set -euo pipefail
           if [ -z "$(git status --porcelain)" ]; then
@@ -50,7 +57,7 @@ jobs:
             exit 0
           fi
 
-          branch="chore/dsh-$LATEST"
+          branch="chore/dsh-$TARGET"
           if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
             echo "Branch $branch already exists upstream; a proposal is already open."
             exit 0
@@ -60,24 +67,26 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git checkout -b "$branch"
           git add package.json package-lock.json config/dsh-upstream.json README.md README.zh-CN.md
-          git commit -m "chore: upgrade DeepSeek Harness to $LATEST"
+          git commit -m "chore: upgrade DeepSeek Harness to $TARGET"
           git push origin "$branch"
 
           gh pr create \
             --base main \
             --head "$branch" \
-            --title "chore: upgrade DeepSeek Harness to $LATEST" \
+            --title "chore: upgrade DeepSeek Harness to $TARGET" \
             --body "$(cat <<EOF
-          Automated dependency proposal: re-pins the \`@deepseek-ai/dsh\` family from \`$CURRENT\` to \`$LATEST\`.
+          Automated dependency proposal: re-pins the \`@deepseek-ai/dsh\` family from \`$CURRENT\` to \`$TARGET\`.
+
+          This proposal tracks the npm \`$CHANNEL\` channel recorded in \`config/dsh-upstream.json\`.
 
           Desktop is an Electron host, not a fork of \`deepseek-ai/deepseek-harness\`, so this only bumps published npm packages — no upstream source is merged.
 
           Review notes:
 
-          - Upstream release notes: https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v$LATEST
+          - Upstream release notes: https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v$TARGET
           - \`config/dsh-upstream.json\` records the upstream tag and commit for this npm version.
           - CI must pass on Linux, Windows, and macOS before merging. Windows covers the hidden-console launcher, the node-pty round trip, and the ACL sandbox.
-          - Re-check \`scripts/prepare-dependencies.mjs\`: it patches \`@deepseek-ai/dsh-host-apiproxy\` and fails loudly if upstream changed that implementation. A failure there is an upstream compatibility change to resolve deliberately, not something to work around.
+          - Re-check \`scripts/prepare-dependencies.mjs\`: it guards the DeepSeek Harness Windows path opener in \`@deepseek-ai/dsh-native-command\` and is a no-op from 0.1.7 on, where upstream opens paths through \`explorer.exe\`. A failure there is an upstream compatibility change to resolve deliberately, not something to work around.
 
           Do not merge on green CI alone; confirm the release notes do not require a Desktop-side change.
           EOF

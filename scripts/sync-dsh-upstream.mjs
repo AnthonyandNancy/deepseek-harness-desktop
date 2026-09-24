@@ -108,8 +108,13 @@ async function npmView(specifier, field) {
   return JSON.parse(stdout)
 }
 
-export async function readLatestRuntimeVersion() {
-  return npmView(RUNTIME_PACKAGE, 'version')
+/**
+ * Read the newest version on the channel the pin tracks. Prerelease lines live
+ * on `next`, so a bare `version` lookup against `latest` would resolve to the
+ * previous stable line and propose a downgrade once the pin moves ahead of it.
+ */
+export async function readLatestRuntimeVersion(distTag = 'latest') {
+  return npmView(`${RUNTIME_PACKAGE}@${distTag}`, 'version')
 }
 
 /**
@@ -190,12 +195,30 @@ export function updateArtifactNames(source, previousVersion, version) {
   return source.replaceAll(`-dsh-${previousVersion}-`, `-dsh-${version}-`)
 }
 
-export function buildUpstreamRecord({ version, tag, commit }) {
+/**
+ * The npm dist-tag the pin tracks. A `latest` lookup would never propose a
+ * release published on `next`, and once the pin moves ahead of `latest` it would
+ * propose a downgrade instead. The record is the single source of truth; records
+ * written before this field existed default to `latest`.
+ */
+export function readRecordedDistTag(source) {
+  try {
+    const parsed = JSON.parse(source)
+    if (typeof parsed.distTag === 'string' && parsed.distTag.length > 0) return parsed.distTag
+  } catch {
+    // A malformed record is a writer-path problem; the channel default is still
+    // safe to read, and the upgrade path replaces this file wholesale.
+  }
+  return 'latest'
+}
+
+export function buildUpstreamRecord({ version, tag, commit, distTag = 'latest' }) {
   return `${JSON.stringify({
     repository: UPSTREAM_REPOSITORY,
     package: RUNTIME_PACKAGE,
     version,
     tag,
+    distTag,
     ...(commit === undefined ? {} : { commit }),
   }, undefined, 2)}\n`
 }
@@ -215,12 +238,14 @@ async function main() {
   const dependencies = collectDshDependencies(JSON.parse(manifestSource))
   const currentVersion = assertSingleReleaseLine(dependencies)
 
+  const recordedDistTag = readRecordedDistTag(readFileSync(upstreamJsonPath, 'utf8'))
   const targetVersion = options.mode === 'version'
     ? options.version
-    : await readLatestRuntimeVersion()
+    : await readLatestRuntimeVersion(recordedDistTag)
 
   console.log(`current ${RUNTIME_PACKAGE}: ${currentVersion}`)
   console.log(`target  ${RUNTIME_PACKAGE}: ${targetVersion}`)
+  console.log(`tracked npm channel: ${recordedDistTag}`)
   console.log(`pinned DeepSeek Harness packages: ${dependencies.length}`)
 
   if (targetVersion === currentVersion) {
@@ -248,7 +273,12 @@ async function main() {
     currentVersion,
     targetVersion,
   ))
-  writeFileSync(upstreamJsonPath, buildUpstreamRecord({ version: targetVersion, tag, commit }))
+  writeFileSync(upstreamJsonPath, buildUpstreamRecord({
+    version: targetVersion,
+    tag,
+    commit,
+    distTag: recordedDistTag,
+  }))
   for (const readmePath of readmePaths) {
     const source = readFileSync(readmePath, 'utf8')
     const updated = updateReadme(source, currentVersion, targetVersion)

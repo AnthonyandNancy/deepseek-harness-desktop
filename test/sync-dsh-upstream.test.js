@@ -7,6 +7,7 @@ import {
   collectDshDependencies,
   parseArguments,
   parseTagCommit,
+  readRecordedDistTag,
   updateArtifactNames,
   updateManifest,
   updateReadme,
@@ -118,7 +119,8 @@ test('the upstream record omits an unresolved commit instead of inventing one', 
 
 test('the upstream record never carries a churn-only timestamp', () => {
   const record = JSON.parse(buildUpstreamRecord({ version: '0.1.0-rc.8', tag: 'dsh-v0.1.0-rc.8', commit: 'a'.repeat(40) }))
-  assert.deepEqual(Object.keys(record), ['repository', 'package', 'version', 'tag', 'commit'])
+  assert.deepEqual(Object.keys(record), ['repository', 'package', 'version', 'tag', 'distTag', 'commit'])
+  assert.equal(record.distTag, 'latest')
 })
 
 test('the tag lookup reads the commit for the exact tag only', () => {
@@ -137,4 +139,24 @@ test('exactly one mode must be requested', () => {
   assert.throws(() => parseArguments([]), /exactly one of/)
   assert.throws(() => parseArguments(['--version']), /requires a version/)
   assert.throws(() => parseArguments(['--upgrade']), /Unknown argument/)
+})
+
+test('the upstream record names the npm channel the pin tracks', () => {
+  assert.equal(upstream.distTag, 'next')
+})
+
+test('the recorded upstream record carries the dist-tag the pin tracks', () => {
+  const record = JSON.parse(buildUpstreamRecord({
+    version: '0.1.7-rc.1',
+    tag: 'dsh-v0.1.7-rc.1',
+    distTag: 'next',
+  }))
+  assert.equal(record.distTag, 'next')
+  assert.equal(record.version, '0.1.7-rc.1')
+})
+
+test('an unrecorded dist-tag defaults to latest', () => {
+  assert.equal(readRecordedDistTag('{}'), 'latest')
+  assert.equal(readRecordedDistTag(JSON.stringify({ version: '0.1.5-rc.3' })), 'latest')
+  assert.equal(readRecordedDistTag(JSON.stringify({ distTag: 'next' })), 'next')
 })
