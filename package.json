@@ -27,6 +27,7 @@
     "smoke:packaged": "node scripts/smoke-packaged.mjs",
     "dsh:check": "node scripts/sync-dsh-upstream.mjs --check",
     "dsh:update": "node scripts/sync-dsh-upstream.mjs --latest",
+    "verify:closure": "node scripts/verify-dependency-closure.mjs",
     "verify:natives": "node scripts/verify-packaged-natives.mjs",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
